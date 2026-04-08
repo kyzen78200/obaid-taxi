@@ -2,7 +2,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendDriverWebPush } from '@/lib/notify'
-import { sendEmail, driverApprovedHtml } from '@/lib/resend'
+import { driverApprovedHtml } from '@/lib/resend'
+import { sendEmail } from '@/lib/notify'
 import { requireAdmin } from '@/lib/api-auth'
 
 const supabaseAdmin = createClient(

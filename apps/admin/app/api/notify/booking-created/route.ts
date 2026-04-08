@@ -2,8 +2,8 @@
 // Sends email confirmation to the client + admin notification
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-import { sendEmail, bookingConfirmedHtml } from '@/lib/resend'
-import { createAdminNotification } from '@/lib/notify'
+import { bookingConfirmedHtml } from '@/lib/resend'
+import { createAdminNotification, sendEmail } from '@/lib/notify'
 import { requireBearerAuth } from '@/lib/api-auth'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'

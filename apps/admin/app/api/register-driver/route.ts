@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-import { sendEmail, driverWelcomeHtml } from '@/lib/resend'
+import { driverWelcomeHtml } from '@/lib/resend'
+import { sendEmail } from '@/lib/notify'
 import { createAdminNotification } from '@/lib/notify'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 
