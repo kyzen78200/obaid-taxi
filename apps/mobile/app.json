@@ -32,11 +32,13 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "RECEIVE_BOOT_COMPLETED",
-        "VIBRATE"
+        "VIBRATE",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "config": {
         "googleMaps": {
-          "apiKey": "GOOGLE_MAPS_API_KEY"
+          "apiKey": "$GOOGLE_MAPS_API_KEY"
         }
       }
     },
@@ -59,8 +61,10 @@
     "scheme": "obaid-taxi",
     "extra": {
       "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
-      }
-    }
+        "projectId": "b1e36c3f-5743-4fc7-b2f0-fd27f5c0ade1"
+      },
+      "router": {}
+    },
+    "owner": "zebreyn"
   }
 }
