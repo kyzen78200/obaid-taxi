@@ -9,7 +9,8 @@
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://robjxilrhncflqguoeox.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvYmp4aWxyaG5jZmxxZ3VvZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTI3MTEsImV4cCI6MjA5MDYyODcxMX0.H8Vhwl8NRB4TNxZdoE9HrLaDnF9Isvv11FeotAOeJ0U",
-        "EXPO_PUBLIC_ADMIN_URL": "https://otaxi.fr"
+        "EXPO_PUBLIC_ADMIN_URL": "https://otaxi.fr",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyAqcH9IdeGJpTqGzxqF5hkcg_KT2cXEGJE"
       }
     },
     "preview": {
@@ -20,7 +21,8 @@
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://robjxilrhncflqguoeox.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvYmp4aWxyaG5jZmxxZ3VvZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTI3MTEsImV4cCI6MjA5MDYyODcxMX0.H8Vhwl8NRB4TNxZdoE9HrLaDnF9Isvv11FeotAOeJ0U",
-        "EXPO_PUBLIC_ADMIN_URL": "https://otaxi.fr"
+        "EXPO_PUBLIC_ADMIN_URL": "https://otaxi.fr",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyAqcH9IdeGJpTqGzxqF5hkcg_KT2cXEGJE"
       }
     },
     "production": {
@@ -30,7 +32,8 @@
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://robjxilrhncflqguoeox.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvYmp4aWxyaG5jZmxxZ3VvZW94Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTI3MTEsImV4cCI6MjA5MDYyODcxMX0.H8Vhwl8NRB4TNxZdoE9HrLaDnF9Isvv11FeotAOeJ0U",
-        "EXPO_PUBLIC_ADMIN_URL": "https://otaxi.fr"
+        "EXPO_PUBLIC_ADMIN_URL": "https://otaxi.fr",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyAqcH9IdeGJpTqGzxqF5hkcg_KT2cXEGJE"
       }
     }
   },

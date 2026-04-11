@@ -4,8 +4,9 @@ const nextConfig = {
     serverActions: {
       allowedOrigins: [
         'localhost:3001',
+        'otaxi.fr',
+        'www.otaxi.fr',
         'obaid-taxi-admin.vercel.app',
-        'obaid-taxi-admin-h452p7r3b-zebreyn-9679s-projects.vercel.app',
       ],
     },
   },

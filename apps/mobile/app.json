@@ -19,7 +19,8 @@
       "bundleIdentifier": "com.obaidtaxi.app",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Obaid Taxi utilise votre position pour définir votre point de départ.",
-        "NSLocationAlwaysUsageDescription": "Obaid Taxi utilise votre position pour définir votre point de départ."
+        "NSLocationAlwaysUsageDescription": "Obaid Taxi utilise votre position pour définir votre point de départ.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
