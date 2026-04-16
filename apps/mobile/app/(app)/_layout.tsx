@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Tabs } from 'expo-router'
+import { Tabs, Redirect } from 'expo-router'
 import { Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Notifications from 'expo-notifications'
@@ -106,9 +106,14 @@ function AppTabs() {
 }
 
 export default function AppLayout() {
-  const { isLoading } = useAuthStore()
+  const { session, isGuest, isLoading } = useAuthStore()
 
   if (isLoading) return null
+
+  // Pas connecté et pas invité → retour à l'écran d'accueil
+  if (!session && !isGuest) {
+    return <Redirect href="/(auth)/welcome" />
+  }
 
   return (
     <ErrorBoundary>
