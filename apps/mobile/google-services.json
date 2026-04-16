@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "889342624252",
+    "project_id": "o-taxi-78",
+    "storage_bucket": "o-taxi-78.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:889342624252:android:f2a6c16e6538d50c2d7279",
+        "android_client_info": {
+          "package_name": "com.obaidtaxi.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuZi0v8hDopWN6sRJ-Q3eTG7BpvICosuY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
