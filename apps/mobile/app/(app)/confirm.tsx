@@ -9,6 +9,7 @@ import * as DocumentPicker from 'expo-document-picker'
 import { supabase } from '../../lib/supabase'
 import { useBookingStore } from '../../store/booking'
 import { useAuthStore } from '../../store/auth'
+import { useGuestHistoryStore } from '../../store/guestHistory'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
@@ -18,6 +19,7 @@ export default function ConfirmScreen() {
   const router = useRouter()
   const { formData, estimate, reset } = useBookingStore()
   const { user, profile, isGuest } = useAuthStore()
+  const { addBooking: addGuestBooking } = useGuestHistoryStore()
 
   const [guestName, setGuestName] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
@@ -85,8 +87,13 @@ export default function ConfirmScreen() {
 
   async function handleConfirm() {
     if (isGuest) {
-      if (!guestName.trim() || !guestPhone.trim()) {
-        Alert.alert('Informations manquantes', 'Nom et téléphone requis pour confirmer.')
+      if (!guestName.trim() || !guestPhone.trim() || !guestEmail.trim()) {
+        Alert.alert('Informations manquantes', 'Nom, téléphone et email sont requis pour confirmer.')
+        return
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(guestEmail.trim())) {
+        Alert.alert('Email invalide', 'Veuillez saisir une adresse email valide.')
         return
       }
     }
@@ -129,6 +136,33 @@ export default function ConfirmScreen() {
         .single()
 
       if (error) throw new Error(error.message)
+
+      // Sauvegarde locale pour les invités (historique persistant)
+      if (isGuest) {
+        addGuestBooking({
+          id: data.id,
+          pickup_address: bookingData.pickup_address,
+          dropoff_address: bookingData.dropoff_address,
+          pickup_lat: bookingData.pickup_lat,
+          pickup_lng: bookingData.pickup_lng,
+          dropoff_lat: bookingData.dropoff_lat,
+          dropoff_lng: bookingData.dropoff_lng,
+          scheduled_at: bookingData.scheduled_at,
+          trip_type: bookingData.trip_type!,
+          estimated_min: bookingData.estimated_min,
+          estimated_max: bookingData.estimated_max,
+          distance_km: bookingData.distance_km,
+          duration_min: bookingData.duration_min,
+          status: 'pending',
+          created_at: new Date().toISOString(),
+          guest_name: guestName.trim(),
+          guest_phone: guestPhone.trim(),
+          guest_email: guestEmail.trim(),
+          notes: notes.trim() || null,
+          tariff_code: bookingData.tariff_code,
+          is_conventional: bookingData.is_conventional,
+        })
+      }
 
       // Upload PDF attestation if provided
       if (pdfFile) {
@@ -221,13 +255,16 @@ export default function ConfirmScreen() {
                   keyboardType="phone-pad"
                 />
                 <Field
-                  label="Email (optionnel)"
+                  label="Email *"
                   value={guestEmail}
                   onChange={setGuestEmail}
                   placeholder="votre@email.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
                 />
+                <Text style={styles.emailHint}>
+                  💡 Permet de retrouver vos courses si vous créez un compte plus tard
+                </Text>
               </View>
             </View>
           )}
@@ -423,4 +460,5 @@ const styles = StyleSheet.create({
   disabledButton: { opacity: 0.6 },
   confirmButtonText: { color: '#FFFFFF', fontSize: 17, fontWeight: '700' },
   disclaimer: { fontSize: 12, color: '#9CA3AF', textAlign: 'center', lineHeight: 18 },
+  emailHint: { fontSize: 12, color: '#6B7280', lineHeight: 16, marginTop: -4 },
 })

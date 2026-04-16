@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../store/auth'
+import { useGuestHistoryStore, type GuestBookingRecord } from '../../store/guestHistory'
 import type { Booking, BookingStatus } from '@obaid-taxi/shared'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -35,17 +36,22 @@ const STATUS_LABELS: Record<string, string> = {
 export default function HistoryScreen() {
   const router = useRouter()
   const { user, isGuest } = useAuthStore()
+  const { bookings: guestBookings } = useGuestHistoryStore()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
+    if (isGuest) {
+      setLoading(false)
+      return
+    }
     if (!user) {
       setLoading(false)
       return
     }
     loadHistory()
-  }, [user])
+  }, [user, isGuest])
 
   async function loadHistory(isRefresh = false) {
     if (!isRefresh) setLoading(true)
@@ -68,19 +74,37 @@ export default function HistoryScreen() {
   if (isGuest) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>🔒</Text>
-          <Text style={styles.emptyTitle}>Connexion requise</Text>
-          <Text style={styles.emptySubtitle}>
-            Créez un compte pour accéder à votre historique de courses
+        <View style={styles.header}>
+          <Text style={styles.title}>Mes courses</Text>
+          <Text style={styles.subtitle}>{guestBookings.length} course{guestBookings.length !== 1 ? 's' : ''}</Text>
+        </View>
+        <View style={styles.guestBanner}>
+          <Text style={styles.guestBannerText}>
+            💡 Créez un compte pour retrouver vos courses sur tous vos appareils
           </Text>
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => router.push('/(auth)/login')}
-          >
-            <Text style={styles.loginButtonText}>Se connecter</Text>
+          <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+            <Text style={styles.guestBannerLink}>Créer un compte</Text>
           </TouchableOpacity>
         </View>
+        {guestBookings.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>🚕</Text>
+            <Text style={styles.emptyTitle}>Aucune course pour l'instant</Text>
+            <Text style={styles.emptySubtitle}>Réservez votre première course !</Text>
+            <TouchableOpacity style={styles.loginButton} onPress={() => router.push('/(app)')}>
+              <Text style={styles.loginButtonText}>Réserver maintenant</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={guestBookings}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.list}
+            renderItem={({ item }) => (
+              <GuestBookingCard booking={item} onPress={() => router.push(`/(app)/booking/${item.id}`)} />
+            )}
+          />
+        )}
       </SafeAreaView>
     )
   }
@@ -133,6 +157,36 @@ export default function HistoryScreen() {
         />
       )}
     </SafeAreaView>
+  )
+}
+
+function GuestBookingCard({ booking, onPress }: { booking: GuestBookingRecord; onPress: () => void }) {
+  const date = format(new Date(booking.scheduled_at), "d MMM yyyy 'à' HH'h'mm", { locale: fr })
+  const statusColor = STATUS_COLORS[booking.status] ?? '#9CA3AF'
+  return (
+    <TouchableOpacity style={styles.bookingCard} onPress={onPress}>
+      <View style={styles.bookingHeader}>
+        <View style={styles.route}>
+          <View style={[styles.dot, styles.dotBlue]} />
+          <Text style={styles.address} numberOfLines={1}>{booking.pickup_address}</Text>
+        </View>
+        <View style={styles.route}>
+          <View style={[styles.dot, styles.dotGray]} />
+          <Text style={styles.address} numberOfLines={1}>{booking.dropoff_address}</Text>
+        </View>
+      </View>
+      <View style={styles.bookingFooter}>
+        <Text style={styles.date}>{date}</Text>
+        <View style={styles.bookingRight}>
+          <Text style={styles.price}>{booking.estimated_min}€–{booking.estimated_max}€</Text>
+          <View style={[styles.statusBadge, { backgroundColor: statusColor + '20' }]}>
+            <Text style={[styles.statusText, { color: statusColor }]}>
+              {STATUS_LABELS[booking.status] ?? booking.status}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
   )
 }
 
@@ -211,4 +265,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   loginButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
+  guestBanner: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    backgroundColor: '#EFF6FF',
+    borderRadius: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  guestBannerText: { fontSize: 13, color: '#1E40AF', flex: 1 },
+  guestBannerLink: { fontSize: 13, color: '#1D4ED8', fontWeight: '700', textDecorationLine: 'underline' },
 })

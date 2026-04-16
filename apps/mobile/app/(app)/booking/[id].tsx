@@ -1,4 +1,3 @@
-'use client'
 import { useEffect, useState, useRef } from 'react'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
@@ -26,6 +25,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { supabase } from '../../../lib/supabase'
 import { getRouteInfo } from '../../../lib/google-maps'
 import { decodePolyline } from '../../../lib/decode-polyline'
+import { useAuthStore } from '../../../store/auth'
+import { useGuestHistoryStore } from '../../../store/guestHistory'
 import type { Booking, BookingStatus } from '@obaid-taxi/shared'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -58,6 +59,8 @@ export default function BookingStatusScreen() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
   const mapRef = useRef<MapView>(null)
+  const { isGuest } = useAuthStore()
+  const { bookings: guestBookings } = useGuestHistoryStore()
 
   const [booking, setBooking] = useState<Booking | null>(null)
   const [loading, setLoading] = useState(true)
@@ -75,6 +78,20 @@ export default function BookingStatusScreen() {
 
   useEffect(() => {
     if (!id) return
+
+    // Invité : charger depuis le store local uniquement
+    if (isGuest) {
+      const local = guestBookings.find((b) => b.id === id)
+      if (local) {
+        setBooking(local as unknown as Booking)
+      } else {
+        Alert.alert('Erreur', 'Réservation introuvable.')
+        router.back()
+      }
+      setLoading(false)
+      return
+    }
+
     loadBooking()
 
     const channel = supabase
@@ -84,7 +101,7 @@ export default function BookingStatusScreen() {
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
-  }, [id])
+  }, [id, isGuest])
 
   async function handleRefresh() {
     setRefreshing(true)

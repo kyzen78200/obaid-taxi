@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import { Tabs } from 'expo-router'
 import { Platform } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Notifications from 'expo-notifications'
 import * as Device from 'expo-device'
+import Constants from 'expo-constants'
 import { useAuthStore } from '../../store/auth'
 import { Ionicons } from '@expo/vector-icons'
 import { ThemeProvider, useTheme } from '../../context/ThemeContext'
@@ -29,7 +31,10 @@ async function registerPushToken(userId: string) {
   }
   if (finalStatus !== 'granted') return
 
-  const tokenData = await Notifications.getExpoPushTokenAsync()
+  const projectId = Constants.expoConfig?.extra?.eas?.projectId
+  if (!projectId) return
+
+  const tokenData = await Notifications.getExpoPushTokenAsync({ projectId })
   const token = tokenData.data
   const platform = Platform.OS === 'ios' ? 'ios' : 'android'
 
@@ -41,6 +46,7 @@ async function registerPushToken(userId: string) {
 function AppTabs() {
   const { isDark } = useTheme()
   const { user } = useAuthStore()
+  const insets = useSafeAreaInsets()
 
   useEffect(() => {
     if (user?.id) {
@@ -58,8 +64,8 @@ function AppTabs() {
           borderTopWidth: 1,
           borderTopColor: isDark ? '#374151' : '#F3F4F6',
           backgroundColor: isDark ? '#111827' : '#FFFFFF',
-          paddingBottom: 8,
-          height: 60,
+          paddingBottom: insets.bottom + 4,
+          height: 60 + insets.bottom,
         },
       }}
     >
