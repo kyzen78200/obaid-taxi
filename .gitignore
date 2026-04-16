@@ -4,6 +4,8 @@ node_modules
 # Claude Code — settings locaux (contient des tokens, ne jamais committer)
 .claude/settings.json
 .claude/settings.local.json
+.mcp.local.json
+.mcp.json
 dist
 .next
 .expo
