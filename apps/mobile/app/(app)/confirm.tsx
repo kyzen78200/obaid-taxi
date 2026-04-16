@@ -18,7 +18,8 @@ const MAX_PDF_SIZE = 5 * 1024 * 1024 // 5 MB
 export default function ConfirmScreen() {
   const router = useRouter()
   const { formData, estimate, reset } = useBookingStore()
-  const { user, profile, isGuest } = useAuthStore()
+  const { user, profile, isGuest: isGuestFlag } = useAuthStore()
+  const isGuest = isGuestFlag || !user?.id
   const { addBooking: addGuestBooking } = useGuestHistoryStore()
 
   const [guestName, setGuestName] = useState('')
