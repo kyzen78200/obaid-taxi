@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { Ionicons } from '@expo/vector-icons'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput,
   ActivityIndicator, Alert, Dimensions, Modal, Linking, RefreshControl,
@@ -35,23 +36,23 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window')
 const MAP_HEIGHT = Math.round(SCREEN_HEIGHT * 0.38)
 
 const CANCELLATION_REASONS = [
-  { id: 'price',    label: '💰 Prix trop élevé' },
-  { id: 'no_need',  label: '🚫 Je n\'ai plus besoin du trajet' },
-  { id: 'wrong_pickup', label: '📍 Mauvais point de prise en charge' },
-  { id: 'other_solution', label: '🔄 J\'ai trouvé une autre solution' },
-  { id: 'mistake',  label: '⚠️ Réservation créée par erreur' },
-  { id: 'other',    label: '✍️ Autre (préciser)' },
+  { id: 'price',    label: 'Prix trop élevé' },
+  { id: 'no_need',  label: 'Je n\'ai plus besoin du trajet' },
+  { id: 'wrong_pickup', label: 'Mauvais point de prise en charge' },
+  { id: 'other_solution', label: 'J\'ai trouvé une autre solution' },
+  { id: 'mistake',  label: 'Réservation créée par erreur' },
+  { id: 'other',    label: 'Autre (préciser)' },
 ]
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; color: string; bg: string; icon: string }> = {
-  pending:                { label: 'En attente',             color: '#B45309', bg: '#FFF7ED', icon: '⏳' },
-  confirmed:              { label: 'Confirmée',              color: '#065F46', bg: '#ECFDF5', icon: '✅' },
-  in_progress:            { label: 'En route',               color: '#1D4ED8', bg: '#EFF6FF', icon: '🚗' },
-  completed:              { label: 'Effectuée',              color: '#1E40AF', bg: '#EFF6FF', icon: '⭐' },
-  refused:                { label: 'Refusée',                color: '#991B1B', bg: '#FEF2F2', icon: '❌' },
-  cancelled:              { label: 'Annulée',                color: '#6B7280', bg: '#F9FAFB', icon: '🚫' },
-  no_show:                { label: 'Non présenté',           color: '#6B7280', bg: '#F9FAFB', icon: '👻' },
-  cancellation_requested: { label: 'Annulation demandée',   color: '#92400E', bg: '#FFFBEB', icon: '⚠️' },
+  pending:                { label: 'En attente',             color: '#B45309', bg: '#FFF7ED', icon: 'time-outline' },
+  confirmed:              { label: 'Confirmée',              color: '#065F46', bg: '#ECFDF5', icon: 'checkmark-circle-outline' },
+  in_progress:            { label: 'En route',               color: '#1D4ED8', bg: '#EFF6FF', icon: 'car-outline' },
+  completed:              { label: 'Effectuée',              color: '#1E40AF', bg: '#EFF6FF', icon: 'star-outline' },
+  refused:                { label: 'Refusée',                color: '#991B1B', bg: '#FEF2F2', icon: 'close-circle-outline' },
+  cancelled:              { label: 'Annulée',                color: '#6B7280', bg: '#F9FAFB', icon: 'ban-outline' },
+  no_show:                { label: 'Non présenté',           color: '#6B7280', bg: '#F9FAFB', icon: 'person-remove-outline' },
+  cancellation_requested: { label: 'Annulation demandée',   color: '#92400E', bg: '#FFFBEB', icon: 'alert-circle-outline' },
 }
 
 export default function BookingStatusScreen() {
@@ -264,7 +265,7 @@ export default function BookingStatusScreen() {
         </TouchableOpacity>
 
         <View style={[styles.statusBadge, { backgroundColor: statusConfig.bg }]}>
-          <Text style={styles.statusBadgeIcon}>{statusConfig.icon}</Text>
+          <Ionicons name={statusConfig.icon as any} size={16} color={statusConfig.color} />
           <Text style={[styles.statusBadgeText, { color: statusConfig.color }]}>
             {statusConfig.label}
           </Text>
@@ -286,35 +287,35 @@ export default function BookingStatusScreen() {
         {booking.status === 'pending' && (
           <View style={[styles.statusCard, { backgroundColor: statusConfig.bg }]}>
             <Text style={[styles.statusHint, { color: statusConfig.color }]}>
-              ⏳ Le gestionnaire va examiner votre demande et vous confirmera par notification.
+              Le gestionnaire va examiner votre demande et vous confirmera par notification.
             </Text>
           </View>
         )}
         {booking.status === 'confirmed' && (
           <View style={[styles.statusCard, { backgroundColor: statusConfig.bg }]}>
             <Text style={[styles.statusHint, { color: statusConfig.color }]}>
-              ✅ Votre course est confirmée. Le chauffeur sera à l'heure !
+              Votre course est confirmée. Le chauffeur sera à l'heure !
             </Text>
           </View>
         )}
         {booking.status === 'in_progress' && (
           <View style={[styles.statusCard, { backgroundColor: statusConfig.bg }]}>
             <Text style={[styles.statusHint, { color: statusConfig.color }]}>
-              🚗 Le chauffeur est en route pour vous récupérer.
+              Le chauffeur est en route pour vous récupérer.
             </Text>
           </View>
         )}
         {booking.status === 'cancellation_requested' && (
           <View style={[styles.statusCard, { backgroundColor: '#FEF3C7', borderWidth: 1, borderColor: '#F59E0B' }]}>
             <Text style={{ color: '#92400E', fontSize: 13 }}>
-              ⚠️ Le chauffeur a demandé l'annulation de cette course. Le gestionnaire examine la demande.
+              Le chauffeur a demandé l'annulation de cette course. Le gestionnaire examine la demande.
             </Text>
           </View>
         )}
         {booking.status === 'refused' && (
           <View style={[styles.statusCard, { backgroundColor: '#FEF2F2' }]}>
             <Text style={{ color: '#991B1B', fontSize: 13, fontWeight: '600', marginBottom: 4 }}>
-              ❌ Votre réservation a été refusée.
+              Votre réservation a été refusée.
             </Text>
             {booking.refusal_comment ? (
               <Text style={{ color: '#7F1D1D', fontSize: 13 }}>
@@ -326,14 +327,14 @@ export default function BookingStatusScreen() {
         {booking.status === 'cancelled' && booking.cancellation_reason && (
           <View style={[styles.statusCard, { backgroundColor: '#F9FAFB' }]}>
             <Text style={{ color: '#6B7280', fontSize: 13 }}>
-              🚫 Annulée — {booking.cancellation_reason}
+              Annulée — {booking.cancellation_reason}
             </Text>
           </View>
         )}
         {booking.status === 'completed' && booking.points_credited ? (
           <View style={[styles.statusCard, { backgroundColor: '#FFFBEB' }]}>
             <Text style={{ color: '#92400E', fontSize: 13 }}>
-              ⭐ +{booking.points_credited} points fidélité crédités !
+              +{booking.points_credited} points fidélité crédités !
             </Text>
           </View>
         ) : null}
@@ -342,9 +343,9 @@ export default function BookingStatusScreen() {
         {(booking.status === 'confirmed' || booking.status === 'in_progress') && (booking as any).drivers && (
           <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#1D4ED8' }]}>
             <Text style={styles.sectionTitle}>Votre chauffeur</Text>
-            <DetailRow icon="👤" label="Nom"      value={`${(booking as any).drivers.first_name} ${(booking as any).drivers.last_name}`} />
+            <DetailRow icon="person-outline" label="Nom"      value={`${(booking as any).drivers.first_name} ${(booking as any).drivers.last_name}`} />
             {(booking as any).drivers.phone && (
-              <DetailRow icon="📞" label="Téléphone" value={(booking as any).drivers.phone} />
+              <DetailRow icon="call-outline" label="Téléphone" value={(booking as any).drivers.phone} />
             )}
           </View>
         )}
@@ -352,20 +353,20 @@ export default function BookingStatusScreen() {
         {/* ── Timeline ── */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Suivi</Text>
-          <TimelineStep icon="📝" label="Demande envoyée" sublabel={createdDate} done />
+          <TimelineStep icon="document-text-outline" label="Demande envoyée" sublabel={createdDate} done />
           <TimelineStep
-            icon="✅" label="Confirmation"
+            icon="checkmark-circle-outline" label="Confirmation"
             sublabel={booking.status !== 'pending' && booking.status !== 'refused' ? 'Traitée' : booking.status === 'refused' ? 'Refusée' : 'En cours...'}
             done={!['pending', 'refused'].includes(booking.status)}
             active={booking.status === 'pending'}
           />
           <TimelineStep
-            icon="🚗" label="En route" sublabel=""
+            icon="car-outline" label="En route" sublabel=""
             done={['in_progress', 'completed'].includes(booking.status)}
             active={booking.status === 'confirmed'}
           />
           <TimelineStep
-            icon="⭐" label="Course effectuée" sublabel={scheduledDate}
+            icon="star-outline" label="Course effectuée" sublabel={scheduledDate}
             done={booking.status === 'completed'}
             active={booking.status === 'in_progress'}
             isLast
@@ -375,18 +376,18 @@ export default function BookingStatusScreen() {
         {/* ── Détails ── */}
         <View style={styles.card}>
           <Text style={styles.sectionTitle}>Détails</Text>
-          <DetailRow icon="📍" label="Départ"  value={booking.pickup_address} />
-          <DetailRow icon="🏁" label="Arrivée" value={booking.dropoff_address} />
-          <DetailRow icon="📅" label="Date"    value={scheduledDate} />
-          <DetailRow icon="🚗" label="Type"    value={booking.trip_type === 'round_trip' ? 'Aller-retour' : 'Aller simple'} />
+          <DetailRow icon="location-outline" label="Départ"  value={booking.pickup_address} />
+          <DetailRow icon="flag-outline" label="Arrivée" value={booking.dropoff_address} />
+          <DetailRow icon="calendar-outline" label="Date"    value={scheduledDate} />
+          <DetailRow icon="car-outline" label="Type"    value={booking.trip_type === 'round_trip' ? 'Aller-retour' : 'Aller simple'} />
           <DetailRow
-            icon="💶" label="Estimation"
+            icon="cash-outline" label="Estimation"
             value={booking.estimated_min === booking.estimated_max
               ? `${booking.estimated_min}€ (forfait)`
               : `${booking.estimated_min}€ – ${booking.estimated_max}€`}
           />
-          <DetailRow icon="📏" label="Distance" value={`${booking.distance_km.toFixed(1)} km`} />
-          {booking.notes && <DetailRow icon="📝" label="Notes" value={booking.notes} />}
+          <DetailRow icon="resize-outline" label="Distance" value={`${booking.distance_km.toFixed(1)} km`} />
+          {booking.notes && <DetailRow icon="document-text-outline" label="Notes" value={booking.notes} />}
         </View>
 
         {/* ── Actions ── */}
@@ -404,8 +405,9 @@ export default function BookingStatusScreen() {
         )}
 
         {booking.status === 'completed' && (
-          <TouchableOpacity style={styles.repeatButton} onPress={handleRepeatBooking}>
-            <Text style={styles.repeatButtonText}>🔁 Reprendre ce trajet</Text>
+          <TouchableOpacity style={[styles.repeatButton, { flexDirection: 'row', gap: 8, justifyContent: 'center', alignItems: 'center' }]} onPress={handleRepeatBooking}>
+            <Ionicons name="refresh-outline" size={15} color="#1D4ED8" />
+            <Text style={styles.repeatButtonText}>Reprendre ce trajet</Text>
           </TouchableOpacity>
         )}
 
@@ -438,11 +440,12 @@ export default function BookingStatusScreen() {
                 </Text>
                 {(booking as any).drivers.phone && (
                   <TouchableOpacity
-                    style={styles.callButton}
+                    style={[styles.callButton, { flexDirection: 'row', gap: 8, justifyContent: 'center', alignItems: 'center' }]}
                     onPress={() => Linking.openURL(`tel:${(booking as any).drivers.phone}`)}
                   >
+                    <Ionicons name="call-outline" size={15} color="#fff" />
                     <Text style={styles.callButtonText}>
-                      📞 Appeler {(booking as any).drivers.phone}
+                      Appeler {(booking as any).drivers.phone}
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -534,7 +537,7 @@ function TimelineStep({ icon, label, sublabel, done, active, isLast }: {
     <View style={styles.timelineStep}>
       <View style={styles.timelineLeft}>
         <View style={[styles.timelineDot, done && styles.timelineDotDone, active && styles.timelineDotActive]}>
-          <Text style={styles.timelineIcon}>{done ? '✓' : icon}</Text>
+          <Ionicons name={done ? 'checkmark' : icon as any} size={14} color={done ? '#fff' : '#6B7280'} />
         </View>
         {!isLast && <View style={[styles.timelineLine, done && styles.timelineLineDone]} />}
       </View>
@@ -549,7 +552,7 @@ function TimelineStep({ icon, label, sublabel, done, active, isLast }: {
 function DetailRow({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <View style={styles.detailRow}>
-      <Text style={styles.detailIcon}>{icon}</Text>
+      <Ionicons name={icon as any} size={16} color="#6B7280" style={{ marginTop: 2 }} />
       <View style={styles.detailContent}>
         <Text style={styles.detailLabel}>{label}</Text>
         <Text style={styles.detailValue}>{value}</Text>

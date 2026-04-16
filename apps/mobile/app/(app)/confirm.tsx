@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Ionicons } from '@expo/vector-icons'
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
@@ -220,11 +221,11 @@ export default function ConfirmScreen() {
 
           {/* Récapitulatif */}
           <View style={styles.summaryCard}>
-            <SummaryRow icon="📍" label="Départ" value={formData.pickup_address!} />
-            <SummaryRow icon="🏁" label="Arrivée" value={formData.dropoff_address!} />
-            <SummaryRow icon="📅" label="Départ prévu" value={departureLabel} />
+            <SummaryRow icon="location-outline" label="Départ" value={formData.pickup_address!} />
+            <SummaryRow icon="flag-outline" label="Arrivée" value={formData.dropoff_address!} />
+            <SummaryRow icon="calendar-outline" label="Départ prévu" value={departureLabel} />
             <SummaryRow
-              icon="🚗"
+              icon="car-outline"
               label="Type"
               value={formData.trip_type === 'round_trip' ? 'Aller-retour' : 'Aller simple'}
             />
@@ -264,7 +265,7 @@ export default function ConfirmScreen() {
                   autoCapitalize="none"
                 />
                 <Text style={styles.emailHint}>
-                  💡 Permet de retrouver vos courses si vous créez un compte plus tard
+                  Permet de retrouver vos courses si vous créez un compte plus tard
                 </Text>
               </View>
             </View>
@@ -274,7 +275,7 @@ export default function ConfirmScreen() {
           {!isGuest && profile && (
             <View style={styles.clientInfo}>
               <Text style={styles.clientInfoText}>
-                👤 Réservation au nom de <Text style={styles.clientName}>{profile.full_name}</Text>
+                Réservation au nom de <Text style={styles.clientName}>{profile.full_name}</Text>
               </Text>
               <Text style={styles.clientPhone}>{profile.phone}</Text>
             </View>
@@ -297,7 +298,7 @@ export default function ConfirmScreen() {
           {/* Attestation course conventionnée */}
           {formData.is_conventional && (
             <View style={styles.card}>
-              <Text style={styles.sectionTitle}>⚕️ Course conventionnée</Text>
+              <Text style={styles.sectionTitle}>Course conventionnée</Text>
               <Text style={styles.conventionalHint}>
                 Munissez-vous de votre bon de transport CPAM. Vous pouvez joindre votre attestation PDF (recommandé).
               </Text>
@@ -305,7 +306,7 @@ export default function ConfirmScreen() {
               {pdfFile ? (
                 <View style={styles.pdfAttached}>
                   <View style={styles.pdfInfo}>
-                    <Text style={styles.pdfIcon}>📄</Text>
+                    <Ionicons name="document-outline" size={22} color="#065F46" />
                     <View style={{ flex: 1 }}>
                       <Text style={styles.pdfName} numberOfLines={1}>{pdfFile.name}</Text>
                       <Text style={styles.pdfSize}>{(pdfFile.size / 1024).toFixed(0)} Ko</Text>
@@ -316,8 +317,9 @@ export default function ConfirmScreen() {
                   </TouchableOpacity>
                 </View>
               ) : (
-                <TouchableOpacity style={styles.pdfPickButton} onPress={pickPdf}>
-                  <Text style={styles.pdfPickText}>📎 Joindre mon attestation PDF</Text>
+                <TouchableOpacity style={[styles.pdfPickButton, { flexDirection: 'row', gap: 6 }]} onPress={pickPdf}>
+                  <Ionicons name="attach-outline" size={16} color="#1D4ED8" />
+                  <Text style={styles.pdfPickText}>Joindre mon attestation PDF</Text>
                   <Text style={styles.pdfPickSub}>Max 5 Mo — Recommandé</Text>
                 </TouchableOpacity>
               )}
@@ -348,7 +350,7 @@ export default function ConfirmScreen() {
 function SummaryRow({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <View style={styles.summaryRow}>
-      <Text style={styles.summaryIcon}>{icon}</Text>
+      <Ionicons name={icon as any} size={18} color="#6B7280" style={{ marginTop: 2 }} />
       <View style={styles.summaryContent}>
         <Text style={styles.summaryLabel}>{label}</Text>
         <Text style={styles.summaryValue} numberOfLines={2}>{value}</Text>

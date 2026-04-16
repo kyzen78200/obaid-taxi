@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Ionicons } from '@expo/vector-icons'
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView,
   Modal, Pressable, Dimensions,
@@ -126,9 +127,10 @@ export default function EstimateScreen() {
         </TouchableOpacity>
 
         {/* Badge durée / distance */}
-        <View style={styles.routeBadge}>
+        <View style={[styles.routeBadge, { flexDirection: 'row', alignItems: 'center', gap: 6 }]}>
+          <Ionicons name="car-outline" size={13} color="#FFFFFF" />
           <Text style={styles.routeBadgeText}>
-            🚗 {estimate.duration_min} min · {estimate.distance_km.toFixed(1)} km
+            {estimate.duration_min} min · {estimate.distance_km.toFixed(1)} km
           </Text>
         </View>
       </View>
@@ -181,9 +183,10 @@ export default function EstimateScreen() {
             value={formData.trip_type === 'round_trip' ? 'Aller-retour' : 'Aller simple'}
           />
           {formData.is_conventional && (
-            <View style={styles.conventionalBadge}>
+            <View style={[styles.conventionalBadge, { flexDirection: 'row', alignItems: 'center', gap: 6 }]}>
+              <Ionicons name="medical-outline" size={13} color="#065F46" />
               <Text style={styles.conventionalBadgeText}>
-                🏥 Course conventionnée · Bon de transport requis
+                Course conventionnée · Bon de transport requis
               </Text>
             </View>
           )}
@@ -193,7 +196,7 @@ export default function EstimateScreen() {
         {profile && (
           <View style={styles.loyaltyCard}>
             <View style={styles.loyaltyRow}>
-              <Text style={styles.loyaltyIcon}>⭐</Text>
+              <Ionicons name="star-outline" size={22} color="#F59E0B" />
               <View style={styles.loyaltyTextBlock}>
                 <Text style={styles.loyaltyTitle}>+{loyaltyPoints} points fidélité</Text>
                 <Text style={styles.loyaltySubtitle}>
@@ -206,7 +209,7 @@ export default function EstimateScreen() {
 
         {/* Paiement */}
         <View style={styles.paymentCard}>
-          <Text style={styles.paymentLabel}>💳 Mode de paiement</Text>
+          <Text style={styles.paymentLabel}>Mode de paiement</Text>
           <Text style={styles.paymentValue}>Paiement directement au chauffeur</Text>
           <Text style={styles.paymentNote}>Espèces ou carte bancaire acceptées</Text>
         </View>

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { Ionicons } from '@expo/vector-icons'
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView,
   Switch, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Dimensions,
@@ -438,7 +439,7 @@ export default function SearchScreen() {
           >
             <View style={styles.greetingPill}>
               <Text style={styles.greeting}>
-                Bonjour{profile?.full_name ? ` ${profile.full_name.split(' ')[0]}` : ''} 👋
+                Bonjour{profile?.full_name ? ` ${profile.full_name.split(' ')[0]}` : ''}
               </Text>
               <Text style={styles.title}>Où allons-nous ?</Text>
             </View>
@@ -471,7 +472,7 @@ export default function SearchScreen() {
                 <TouchableOpacity onPress={handleUseCurrentLocation} style={styles.locationBtn}>
                   {locating
                     ? <ActivityIndicator size="small" color="#1D4ED8" />
-                    : <Text style={styles.locationBtnText}>📍</Text>
+                    : <Ionicons name="locate" size={18} color="#1D4ED8" />
                   }
                 </TouchableOpacity>
               </View>
@@ -521,7 +522,7 @@ export default function SearchScreen() {
               {!isExpanded && (
                 <TouchableOpacity style={styles.compactSummary} onPress={() => snapTo(true)} activeOpacity={0.7}>
                   <Text style={styles.compactLine} numberOfLines={1}>
-                    {'📅 '}{formatDate(scheduledAt)}{'  ·  '}{'🕐 '}{formatTime(scheduledAt)}
+                    {formatDate(scheduledAt)}{'  ·  '}{formatTime(scheduledAt)}
                     {'   '}
                     {!isForfaitZone
                       ? (tripType === 'one_way' ? 'Aller simple' : 'Aller-retour')
@@ -546,11 +547,13 @@ export default function SearchScreen() {
             >
               {/* Date & heure */}
               <View style={styles.sheetRow}>
-                <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-                  <Text style={styles.dateButtonText}>📅 {formatDate(scheduledAt)}</Text>
+                <TouchableOpacity style={[styles.dateButton, { flexDirection: 'row', gap: 6 }]} onPress={() => setShowDatePicker(true)}>
+                  <Ionicons name="calendar-outline" size={14} color="#374151" />
+                  <Text style={styles.dateButtonText}>{formatDate(scheduledAt)}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.dateButton} onPress={() => setShowTimePicker(true)}>
-                  <Text style={styles.dateButtonText}>🕐 {formatTime(scheduledAt)}</Text>
+                <TouchableOpacity style={[styles.dateButton, { flexDirection: 'row', gap: 6 }]} onPress={() => setShowTimePicker(true)}>
+                  <Ionicons name="time-outline" size={14} color="#374151" />
+                  <Text style={styles.dateButtonText}>{formatTime(scheduledAt)}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -603,7 +606,7 @@ export default function SearchScreen() {
               {isConventional && (
                 <View style={styles.conventionalInfo}>
                   <Text style={styles.conventionalInfoText}>
-                    ℹ️ Un bon de transport CPAM sera demandé par le chauffeur.
+                    Un bon de transport CPAM sera demandé par le chauffeur.
                   </Text>
                 </View>
               )}
@@ -637,7 +640,10 @@ export default function SearchScreen() {
                     </TouchableOpacity>
                   </View>
 
-                  <Text style={styles.forfaitGroupLabel}>🚉 Gares</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                    <Ionicons name="train-outline" size={13} color="#6B7280" />
+                    <Text style={[styles.forfaitGroupLabel, { marginBottom: 0 }]}>Gares</Text>
+                  </View>
                   <View style={styles.forfaitsList}>
                     {destinations.filter(d => d.type === 'station').map(d => (
                       <TouchableOpacity key={d.name}
@@ -649,7 +655,10 @@ export default function SearchScreen() {
                     ))}
                   </View>
 
-                  <Text style={[styles.forfaitGroupLabel, { marginTop: 14 }]}>✈️ Aéroports</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 14, marginBottom: 6 }}>
+                    <Ionicons name="airplane-outline" size={13} color="#6B7280" />
+                    <Text style={[styles.forfaitGroupLabel, { marginBottom: 0 }]}>Aéroports</Text>
+                  </View>
                   <View style={styles.forfaitsList}>
                     {destinations.filter(d => d.type === 'airport').map(d => (
                       <TouchableOpacity key={d.name}

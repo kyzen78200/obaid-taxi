@@ -11,9 +11,6 @@ export default function WelcomeScreen() {
     <SafeAreaView style={styles.container}>
       {/* Illustration / Logo */}
       <View style={styles.heroSection}>
-        <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>🚕</Text>
-        </View>
         <Text style={styles.title}>Obaid Taxi</Text>
         <Text style={styles.subtitle}>
           Réservez votre course en quelques secondes.{'\n'}

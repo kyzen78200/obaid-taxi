@@ -201,7 +201,7 @@ export default function AccountScreen() {
 
           {/* Card : Notifications push */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>🔔 Notifications push</Text>
+            <Text style={styles.cardTitle}>Notifications push</Text>
             {([
               { key: 'push_booking_status',   label: 'Changement de statut de la course' },
               { key: 'push_driver_assigned',   label: 'Chauffeur assigné' },
@@ -225,7 +225,7 @@ export default function AccountScreen() {
 
           {/* Card : Notifications email */}
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>📧 Notifications e-mail</Text>
+            <Text style={styles.cardTitle}>Notifications e-mail</Text>
             {([
               { key: 'email_booking_confirmed',   label: 'Confirmation de réservation' },
               { key: 'email_reminder_day_before',  label: 'Rappel la veille' },

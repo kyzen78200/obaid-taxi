@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Ionicons } from '@expo/vector-icons'
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   Alert, ActivityIndicator, RefreshControl, Switch,
@@ -74,7 +75,7 @@ export default function ProfileScreen() {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: bg }]}>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>👤</Text>
+          <Ionicons name="person-circle-outline" size={64} color="#D1D5DB" style={{ marginBottom: 16 }} />
           <Text style={styles.emptyTitle}>Pas encore de compte</Text>
           <Text style={styles.emptySubtitle}>
             Créez un compte pour accéder à votre profil, votre historique et vos points fidélité
@@ -124,7 +125,7 @@ export default function ProfileScreen() {
         {/* Points fidélité */}
         <View style={[styles.loyaltyCard, isDark && { backgroundColor: '#1C1810', borderColor: '#78350F' }]}>
           <View style={styles.loyaltyHeader}>
-            <Text style={styles.loyaltyTitle}>⭐ Points fidélité</Text>
+            <Text style={styles.loyaltyTitle}>Points fidélité</Text>
             <Text style={styles.loyaltyPoints}>{profile?.loyalty_points ?? 0} pts</Text>
           </View>
           <Text style={styles.loyaltyHint}>
@@ -154,7 +155,7 @@ export default function ProfileScreen() {
         {/* Menu */}
         <View style={[styles.menuCard, { backgroundColor: cardBg }]}>
           <MenuItem
-            icon="🕐"
+            icon="time-outline"
             label="Mes réservations"
             onPress={() => router.push('/(app)/history')}
             textColor={textPrimary}
@@ -162,7 +163,7 @@ export default function ProfileScreen() {
           />
           <View style={[styles.menuDivider, { backgroundColor: divider }]} />
           <MenuItem
-            icon="🔔"
+            icon="notifications-outline"
             label="Notifications"
             onPress={() => {}}
             textColor={textPrimary}
@@ -170,7 +171,7 @@ export default function ProfileScreen() {
           />
           <View style={[styles.menuDivider, { backgroundColor: divider }]} />
           <MenuItem
-            icon="⚙️"
+            icon="settings-outline"
             label="Gérer mon compte"
             onPress={() => router.push('/(app)/account')}
             textColor={textPrimary}
@@ -179,7 +180,7 @@ export default function ProfileScreen() {
           <View style={[styles.menuDivider, { backgroundColor: divider }]} />
           {/* Dark mode toggle */}
           <View style={styles.menuItem}>
-            <Text style={styles.menuItemIcon}>{isDark ? '🌙' : '☀️'}</Text>
+            <Ionicons name={isDark ? 'moon-outline' : 'sunny-outline'} size={20} color={textPrimary} style={{ width: 24 }} />
             <Text style={[styles.menuItemLabel, { color: textPrimary }]}>Mode sombre</Text>
             <Switch
               value={isDark}
@@ -217,7 +218,7 @@ function MenuItem({ icon, label, onPress, textColor, dividerColor }: {
 }) {
   return (
     <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-      <Text style={styles.menuItemIcon}>{icon}</Text>
+      <Ionicons name={icon as any} size={20} color={textColor ?? '#111827'} style={{ width: 24 }} />
       <Text style={[styles.menuItemLabel, textColor ? { color: textColor } : {}]}>{label}</Text>
       <Text style={[styles.menuItemArrow, dividerColor ? { color: dividerColor } : {}]}>›</Text>
     </TouchableOpacity>

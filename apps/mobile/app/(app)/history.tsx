@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Ionicons } from '@expo/vector-icons'
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl,
 } from 'react-native'
@@ -80,7 +81,7 @@ export default function HistoryScreen() {
         </View>
         <View style={styles.guestBanner}>
           <Text style={styles.guestBannerText}>
-            💡 Créez un compte pour retrouver vos courses sur tous vos appareils
+            Créez un compte pour retrouver vos courses sur tous vos appareils
           </Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
             <Text style={styles.guestBannerLink}>Créer un compte</Text>
@@ -88,7 +89,7 @@ export default function HistoryScreen() {
         </View>
         {guestBookings.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>🚕</Text>
+            <Ionicons name="car-outline" size={48} color="#D1D5DB" style={{ marginBottom: 16 }} />
             <Text style={styles.emptyTitle}>Aucune course pour l'instant</Text>
             <Text style={styles.emptySubtitle}>Réservez votre première course !</Text>
             <TouchableOpacity style={styles.loginButton} onPress={() => router.push('/(app)')}>
