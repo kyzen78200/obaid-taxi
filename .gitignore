@@ -1,5 +1,9 @@
 node_modules
 .turbo
+
+# Claude Code — settings locaux (contient des tokens, ne jamais committer)
+.claude/settings.json
+.claude/settings.local.json
 dist
 .next
 .expo
