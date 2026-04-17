@@ -163,14 +163,6 @@ export default function ProfileScreen() {
           />
           <View style={[styles.menuDivider, { backgroundColor: divider }]} />
           <MenuItem
-            icon="notifications-outline"
-            label="Notifications"
-            onPress={() => {}}
-            textColor={textPrimary}
-            dividerColor={divider}
-          />
-          <View style={[styles.menuDivider, { backgroundColor: divider }]} />
-          <MenuItem
             icon="settings-outline"
             label="Gérer mon compte"
             onPress={() => router.push('/(app)/account')}
@@ -203,7 +195,7 @@ export default function ProfileScreen() {
           }
         </TouchableOpacity>
 
-        <Text style={[styles.version, { color: isDark ? '#6B7280' : '#9CA3AF' }]}>Obaid Taxi v1.0.0</Text>
+        <Text style={[styles.version, { color: isDark ? '#6B7280' : '#9CA3AF' }]}>O Taxi v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   )

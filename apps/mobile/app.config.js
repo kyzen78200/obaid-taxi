@@ -2,7 +2,7 @@
 // des variables d'environnement EAS (notamment GOOGLE_MAPS_API_KEY)
 module.exports = {
   expo: {
-    name: 'Obaid Taxi',
+    name: 'O Taxi',
     slug: 'obaid-taxi',
     version: '1.0.0',
     orientation: 'portrait',
@@ -10,7 +10,7 @@ module.exports = {
     userInterfaceStyle: 'light',
     splash: {
       image: './assets/splash.png',
-      resizeMode: 'contain',
+      resizeMode: 'cover',
       backgroundColor: '#1D4ED8',
     },
     assetBundlePatterns: ['**/*'],
@@ -38,6 +38,7 @@ module.exports = {
         'VIBRATE',
         'android.permission.ACCESS_COARSE_LOCATION',
         'android.permission.ACCESS_FINE_LOCATION',
+        'android.permission.POST_NOTIFICATIONS',
       ],
       config: {
         googleMaps: {

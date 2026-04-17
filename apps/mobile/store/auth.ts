@@ -23,7 +23,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
 
   setSession: (session) =>
-    set({ session, user: session?.user ?? null, isLoading: false }),
+    set({
+      session,
+      user: session?.user ?? null,
+      isLoading: false,
+      // Réinitialise le mode invité dès qu'une vraie session est établie
+      isGuest: session ? false : undefined,
+    }),
 
   setProfile: (profile) => set({ profile }),
 

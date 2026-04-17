@@ -21,6 +21,17 @@ Notifications.setNotificationHandler({
   }),
 })
 
+// Canal Android requis sur Android 8+ (API 26+)
+if (Platform.OS === 'android') {
+  Notifications.setNotificationChannelAsync('default', {
+    name: 'O Taxi',
+    importance: Notifications.AndroidImportance.MAX,
+    vibrationPattern: [0, 250, 250, 250],
+    lightColor: '#1D4ED8',
+    sound: 'default',
+  })
+}
+
 async function registerPushToken(userId: string) {
   if (!Device.isDevice) return // simulateur
   const { status: existing } = await Notifications.getPermissionsAsync()
