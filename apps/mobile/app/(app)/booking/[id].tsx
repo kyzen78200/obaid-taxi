@@ -61,7 +61,7 @@ export default function BookingStatusScreen() {
   const insets = useSafeAreaInsets()
   const mapRef = useRef<MapView>(null)
   const { isGuest } = useAuthStore()
-  const { bookings: guestBookings } = useGuestHistoryStore()
+  const { bookings: guestBookings, updateStatus: updateGuestStatus } = useGuestHistoryStore()
 
   const [booking, setBooking] = useState<Booking | null>(null)
   const [loading, setLoading] = useState(true)
@@ -187,7 +187,15 @@ export default function BookingStatusScreen() {
       .eq('id', id)
       .in('status', ['pending', 'confirmed'])
 
-    if (error) Alert.alert('Erreur', 'Impossible d\'annuler la course.')
+    if (error) {
+      Alert.alert('Erreur', 'Impossible d\'annuler la course.')
+    } else {
+      // Mettre à jour le store local pour les invités
+      if (isGuest) {
+        updateGuestStatus(id as string, 'cancelled')
+        setBooking((prev) => prev ? { ...prev, status: 'cancelled', cancellation_reason: reason } : prev)
+      }
+    }
     setCancelling(false)
   }
 
