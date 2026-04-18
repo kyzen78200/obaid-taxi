@@ -11,7 +11,12 @@ export default function WelcomeScreen() {
     <SafeAreaView style={styles.container}>
       {/* Illustration / Logo */}
       <View style={styles.heroSection}>
-        <Text style={styles.title}>Obaid Taxi</Text>
+        <Image
+          source={require('../../assets/icon.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.title}>O Taxi</Text>
         <Text style={styles.subtitle}>
           Réservez votre course en quelques secondes.{'\n'}
           Estimation du prix avant confirmation.
@@ -58,6 +63,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 24,
+    borderRadius: 24,
   },
   logoContainer: {
     width: 100,
