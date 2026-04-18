@@ -1,5 +1,30 @@
 // app.config.js remplace app.json pour permettre la substitution
 // des variables d'environnement EAS (notamment GOOGLE_MAPS_API_KEY)
+const { withDangerousMod } = require('@expo/config-plugins')
+const path = require('path')
+const fs = require('fs')
+
+// Plugin : copie adi-registration.properties dans les assets Android natifs
+// Requis par Google Play Console pour enregistrer le nom de package
+const withAdiRegistration = (config) => {
+  return withDangerousMod(config, [
+    'android',
+    async (config) => {
+      const assetsDir = path.join(
+        config.modRequest.platformProjectRoot,
+        'app/src/main/assets'
+      )
+      if (!fs.existsSync(assetsDir)) {
+        fs.mkdirSync(assetsDir, { recursive: true })
+      }
+      const src = path.join(__dirname, 'assets/adi-registration.properties')
+      const dest = path.join(assetsDir, 'adi-registration.properties')
+      fs.copyFileSync(src, dest)
+      return config
+    },
+  ])
+}
+
 module.exports = {
   expo: {
     name: 'O Taxi',
@@ -51,6 +76,7 @@ module.exports = {
       bundler: 'metro',
     },
     plugins: [
+      withAdiRegistration,
       'expo-router',
       'expo-location',
       [
