@@ -31,19 +31,22 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
 }
 
 // Composant champ adresse avec Google Places Autocomplete
+// ⚠️ Input NON-CONTRÔLÉ : "value" React interfère avec le dropdown natif Google
 function PlacesInput({
-  value,
-  onChange,
+  initialValue,
+  onInput,
   onPlaceSelected,
   placeholder,
 }: {
-  value: string
-  onChange: (v: string) => void
+  initialValue?: string
+  onInput?: () => void          // appelé quand l'user tape (pour réinitialiser coordsConfirmed)
   onPlaceSelected: (name: string, lat: number, lng: number) => void
   placeholder?: string
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const autocompleteRef = useRef<any>(null)
+  const onPlaceSelectedRef = useRef(onPlaceSelected)
+  onPlaceSelectedRef.current = onPlaceSelected   // toujours à jour, pas de stale closure
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -55,7 +58,6 @@ function PlacesInput({
     const google = (window as any).google
     autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
       fields: ['name', 'geometry', 'formatted_address'],
-      // No types restriction — allow all results for flexibility
     })
     autocompleteRef.current.addListener('place_changed', () => {
       const place = autocompleteRef.current.getPlace()
@@ -63,17 +65,17 @@ function PlacesInput({
       const lat = place.geometry.location.lat()
       const lng = place.geometry.location.lng()
       const name = place.name ?? place.formatted_address ?? ''
-      onPlaceSelected(name, lat, lng)
+      onPlaceSelectedRef.current(name, lat, lng)
     })
-  }, [ready, onPlaceSelected])
+  }, [ready])  // Pas de dépendance sur les callbacks — évite les re-attaches
 
   return (
     <div className="relative">
       <input
         ref={inputRef}
         type="text"
-        value={value}
-        onChange={e => onChange(e.target.value)}
+        defaultValue={initialValue}   // non-contrôlé — Google gère la valeur
+        onChange={() => onInput?.()}   // juste pour détecter la frappe
         placeholder={placeholder ?? 'Rechercher une gare, un aéroport…'}
         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-8"
       />
@@ -216,8 +218,9 @@ export default function DestinationsPage() {
               <div className="col-span-2">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Rechercher le lieu</label>
                 <PlacesInput
-                  value={formAddress}
-                  onChange={v => { setFormAddress(v); setCoordsConfirmed(false) }}
+                  key={editingDest?.id ?? 'new'}   // force remount à chaque ouverture
+                  initialValue={formAddress}
+                  onInput={() => setCoordsConfirmed(false)}
                   onPlaceSelected={handlePlaceSelected}
                   placeholder="Tapez le nom de la gare ou de l'aéroport…"
                 />
