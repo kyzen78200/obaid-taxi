@@ -3,7 +3,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { bookingConfirmedHtml } from '@/lib/resend'
-import { createAdminNotification, sendEmail } from '@/lib/notify'
+import { createAdminNotification, sendAdminWebPush, sendEmail } from '@/lib/notify'
 import { requireBearerAuth } from '@/lib/api-auth'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -73,11 +73,20 @@ export async function POST(req: NextRequest) {
     }
 
     // Notif in-app admin
+    const notifTitle = 'Nouvelle réservation'
+    const notifBody = `${clientName} — ${booking.pickup_address} → ${booking.dropoff_address}`
     await createAdminNotification({
       type: 'new_booking',
-      title: 'Nouvelle réservation',
-      body: `${clientName} — ${booking.pickup_address} → ${booking.dropoff_address}`,
+      title: notifTitle,
+      body: notifBody,
       data: { bookingId },
+    })
+
+    // Notif push web admin (iPhone via PWA)
+    await sendAdminWebPush({
+      title: notifTitle,
+      body: notifBody,
+      data: { bookingId, url: `/bookings/${bookingId}` },
     })
 
     return NextResponse.json({ ok: true })

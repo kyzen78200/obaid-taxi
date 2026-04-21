@@ -81,6 +81,35 @@ export async function broadcastWebPushToAllDrivers(
   }
 }
 
+// ── Web Push (Admin) ───────────────────────────────────────
+
+export async function sendAdminWebPush(
+  notification: { title: string; body: string; data?: Record<string, unknown> },
+) {
+  const { data: admins } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('role', 'admin')
+
+  if (!admins?.length) return
+
+  for (const admin of admins) {
+    const { data: subs } = await supabaseAdmin
+      .from('web_push_subscriptions')
+      .select('id, endpoint, p256dh, auth_key')
+      .eq('driver_id', admin.id)
+
+    if (!subs?.length) continue
+
+    for (const sub of subs) {
+      const result = await sendWebPush(sub, notification)
+      if (result?.expired) {
+        await supabaseAdmin.from('web_push_subscriptions').delete().eq('id', sub.id)
+      }
+    }
+  }
+}
+
 // ── Email helpers ──────────────────────────────────────────
 
 export async function sendEmail(to: string, subject: string, html: string) {
