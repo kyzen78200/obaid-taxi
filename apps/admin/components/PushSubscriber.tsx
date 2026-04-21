@@ -55,11 +55,13 @@ async function subscribeSilently() {
     const reg = await navigator.serviceWorker.register('/sw.js')
     await navigator.serviceWorker.ready
     let sub = await reg.pushManager.getSubscription()
-    if (sub) return
-    sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
-    })
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
+      })
+    }
+    // Always re-save to ensure the DB is in sync
     await saveSubscription(sub)
   } catch {
     // silent
