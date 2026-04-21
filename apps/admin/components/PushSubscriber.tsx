@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { subscribeForPush } from '@/lib/push-subscribe'
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
@@ -13,7 +14,8 @@ export default function PushSubscriber() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return
     if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) return
     if (Notification.permission === 'granted') {
-      subscribeSilently()
+      // Already granted — re-sync subscription silently
+      subscribeForPush()
       return
     }
     if (Notification.permission === 'default') {
@@ -48,7 +50,7 @@ export default function PushSubscriber() {
               <button
                 onClick={async () => {
                   setStatus('loading')
-                  const err = await subscribe()
+                  const err = await subscribeForPush()
                   if (err) {
                     setStatus('error')
                     setErrorMsg(err)
@@ -73,76 +75,4 @@ export default function PushSubscriber() {
       </div>
     </div>
   )
-}
-
-async function subscribeSilently() {
-  try {
-    const reg = await navigator.serviceWorker.register('/sw.js')
-    await navigator.serviceWorker.ready
-    let sub = await reg.pushManager.getSubscription()
-    if (!sub) {
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
-      })
-    }
-    await saveSubscription(sub)
-  } catch {
-    // silent on auto-subscribe
-  }
-}
-
-// Returns error string or null on success
-async function subscribe(): Promise<string | null> {
-  try {
-    const permission = await Notification.requestPermission()
-    if (permission !== 'granted') return 'Permission refusée'
-
-    const reg = await navigator.serviceWorker.register('/sw.js')
-    await navigator.serviceWorker.ready
-
-    let sub = await reg.pushManager.getSubscription()
-    if (!sub) {
-      sub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
-      })
-    }
-
-    const err = await saveSubscription(sub)
-    return err
-  } catch (err: any) {
-    return err?.message ?? 'Erreur inconnue'
-  }
-}
-
-async function saveSubscription(sub: PushSubscription): Promise<string | null> {
-  const json = sub.toJSON()
-  if (!json.keys?.p256dh || !json.keys?.auth) return 'Clés manquantes dans la subscription'
-
-  try {
-    const res = await fetch('/api/push/subscribe', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        endpoint: sub.endpoint,
-        p256dh: json.keys.p256dh,
-        auth: json.keys.auth,
-      }),
-    })
-    if (!res.ok) {
-      const body = await res.text()
-      return `HTTP ${res.status} — ${body}`
-    }
-    return null
-  } catch (err: any) {
-    return err?.message ?? 'Fetch échoué'
-  }
-}
-
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
-  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
-  const rawData = atob(base64)
-  return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)))
 }

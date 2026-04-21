@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import NotificationPermissionButton from '@/components/NotificationPermissionButton'
 
 type NotifPrefs = {
   push_new_broadcast: boolean
@@ -287,7 +288,8 @@ export default function DriverSettingsPage() {
       {/* Notifications push */}
       <div className="bg-white rounded-xl shadow-sm p-5">
         <h2 className="font-semibold text-gray-900 mb-4">🔔 Notifications push</h2>
-        <div className="space-y-1">
+        <NotificationPermissionButton />
+        <div className="space-y-1 mt-2">
           {([
             { key: 'push_new_broadcast',  label: 'Nouvelle course disponible' },
             { key: 'push_assigned',       label: 'Course assignée par l\'admin' },
