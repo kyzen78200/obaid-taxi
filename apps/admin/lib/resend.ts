@@ -2,7 +2,7 @@ import { Resend } from 'resend'
 
 export const resend = new Resend(process.env.RESEND_API_KEY)
 
-export const FROM_EMAIL = 'Obaid Taxi <onboarding@resend.dev>'
+export const FROM_EMAIL = 'O Taxi <onboarding@resend.dev>'
 
 // ── Email templates ──────────────────────────────────────────
 
@@ -30,7 +30,7 @@ export function bookingConfirmedHtml(data: {
     <p style="color:#6B7280;font-size:13px">Référence : #${data.bookingId.slice(0, 8).toUpperCase()}</p>
     <p style="color:#374151">Un chauffeur vous sera assigné prochainement. Vous recevrez une notification dès la confirmation.</p>
     <p style="color:#6B7280;font-size:13px;margin-top:32px;border-top:1px solid #E5E7EB;padding-top:16px">
-      Obaid Taxi — Ne répondez pas à cet e-mail.
+      O Taxi — Ne répondez pas à cet e-mail.
     </p>
   </div>`
 }
@@ -56,7 +56,7 @@ export function bookingReminderDayBeforeHtml(data: {
       ${data.driverName ? `<p style="margin:8px 0;color:#374151"><strong>🚗 Chauffeur :</strong> ${data.driverName}</p>` : ''}
     </div>
     <p style="color:#6B7280;font-size:13px;margin-top:32px;border-top:1px solid #E5E7EB;padding-top:16px">
-      Obaid Taxi — Ne répondez pas à cet e-mail.
+      O Taxi — Ne répondez pas à cet e-mail.
     </p>
   </div>`
 }
@@ -75,7 +75,7 @@ export function bookingRecapHtml(data: {
       <h1 style="color:#fff;margin:0;font-size:22px">✅ Course terminée</h1>
     </div>
     <p style="color:#374151">Bonjour <strong>${data.clientName}</strong>,</p>
-    <p style="color:#374151">Merci d'avoir voyagé avec Obaid Taxi. Voici le récapitulatif de votre course :</p>
+    <p style="color:#374151">Merci d'avoir voyagé avec O Taxi. Voici le récapitulatif de votre course :</p>
     <div style="background:#F9FAFB;border-radius:12px;padding:20px;margin:20px 0">
       <p style="margin:8px 0;color:#374151"><strong>📍 Départ :</strong> ${data.pickup}</p>
       <p style="margin:8px 0;color:#374151"><strong>🏁 Destination :</strong> ${data.dropoff}</p>
@@ -84,7 +84,7 @@ export function bookingRecapHtml(data: {
       ${data.pointsEarned ? `<p style="margin:8px 0;color:#D97706"><strong>⭐ Points gagnés :</strong> +${data.pointsEarned} pts</p>` : ''}
     </div>
     <p style="color:#6B7280;font-size:13px;margin-top:32px;border-top:1px solid #E5E7EB;padding-top:16px">
-      Obaid Taxi — Ne répondez pas à cet e-mail.
+      O Taxi — Ne répondez pas à cet e-mail.
     </p>
   </div>`
 }
@@ -93,7 +93,7 @@ export function driverWelcomeHtml(data: { firstName: string; email: string }) {
   return `
   <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
     <div style="background:#1D4ED8;border-radius:12px;padding:20px;text-align:center;margin-bottom:24px">
-      <h1 style="color:#fff;margin:0;font-size:22px">🚗 Bienvenue chez Obaid Taxi !</h1>
+      <h1 style="color:#fff;margin:0;font-size:22px">🚗 Bienvenue chez O Taxi !</h1>
     </div>
     <p style="color:#374151">Bonjour <strong>${data.firstName}</strong>,</p>
     <p style="color:#374151">Votre demande d'inscription en tant que chauffeur a bien été reçue.</p>
@@ -103,7 +103,7 @@ export function driverWelcomeHtml(data: { firstName: string; email: string }) {
     </div>
     <p style="color:#374151">Vous pouvez vous connecter à l'espace chauffeur à tout moment pour suivre l'état de votre compte.</p>
     <p style="color:#6B7280;font-size:13px;margin-top:32px;border-top:1px solid #E5E7EB;padding-top:16px">
-      Obaid Taxi — Ne répondez pas à cet e-mail.
+      O Taxi — Ne répondez pas à cet e-mail.
     </p>
   </div>`
 }
@@ -121,7 +121,7 @@ export function driverApprovedHtml(data: { firstName: string }) {
       <p style="color:#374151;font-weight:600">🚗 Prends la route avec nous !</p>
     </div>
     <p style="color:#6B7280;font-size:13px;margin-top:32px;border-top:1px solid #E5E7EB;padding-top:16px">
-      Obaid Taxi — Ne répondez pas à cet e-mail.
+      O Taxi — Ne répondez pas à cet e-mail.
     </p>
   </div>`
 }
@@ -156,7 +156,7 @@ export function adminDailyRecapHtml(data: {
       <tbody>${rows}</tbody>
     </table>
     <p style="color:#6B7280;font-size:13px;margin-top:32px;border-top:1px solid #E5E7EB;padding-top:16px">
-      Obaid Taxi — Récapitulatif automatique quotidien.
+      O Taxi — Récapitulatif automatique quotidien.
     </p>
   </div>`
 }

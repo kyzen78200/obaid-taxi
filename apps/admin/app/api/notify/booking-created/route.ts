@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
 
         await sendEmail(
           clientEmail,
-          'Votre réservation Obaid Taxi est confirmée',
+          'Votre réservation O Taxi est confirmée',
           bookingConfirmedHtml({
             clientName,
             pickup: booking.pickup_address,

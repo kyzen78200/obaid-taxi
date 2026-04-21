@@ -42,7 +42,7 @@ export default function LoginPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-white">Obaid Taxi Admin</h1>
+          <h1 className="text-2xl font-bold text-white">O Taxi Admin</h1>
           <p className="text-gray-400 mt-1 text-sm">Connectez-vous pour accéder au back-office</p>
         </div>
 

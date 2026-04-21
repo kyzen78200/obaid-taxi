@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
     // Email de bienvenue au chauffeur
     await sendEmail(
       email.trim().toLowerCase(),
-      'Bienvenue chez Obaid Taxi — Demande reçue',
+      'Bienvenue chez O Taxi — Demande reçue',
       driverWelcomeHtml({ firstName: first_name.trim(), email: email.trim().toLowerCase() }),
     ).catch(() => {})
 

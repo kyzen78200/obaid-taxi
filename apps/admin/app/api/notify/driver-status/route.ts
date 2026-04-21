@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       if (driverEmail && (!prefs || prefs.email_account_approved !== false)) {
         await sendEmail(
           driverEmail,
-          'Votre compte chauffeur Obaid Taxi est approuvé',
+          'Votre compte chauffeur O Taxi est approuvé',
           driverApprovedHtml({ firstName: driver.first_name }),
         )
       }

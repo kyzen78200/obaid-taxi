@@ -83,7 +83,7 @@ async function updateBookingStatus(bookingId: string, newStatus: BookingStatus, 
       if (!prefs || prefs.email_booking_recap !== false) {
         await sendEmail(
           clientEmail,
-          'Récapitulatif de votre course Obaid Taxi',
+          'Récapitulatif de votre course O Taxi',
           bookingRecapHtml({
             clientName: (bk as any).profiles?.full_name ?? 'Client',
             pickup: bk.pickup_address,

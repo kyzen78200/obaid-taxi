@@ -22,7 +22,7 @@ export default function MobileHeader() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <span className="font-bold text-sm text-gray-900">Obaid Taxi</span>
+        <span className="font-bold text-sm text-gray-900">O Taxi</span>
         <span className="text-xs text-gray-400">Admin</span>
       </div>
     </header>

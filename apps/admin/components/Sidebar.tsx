@@ -106,7 +106,7 @@ export default function Sidebar() {
             </svg>
           </div>
           <div>
-            <p className="font-bold text-sm text-white">Obaid Taxi</p>
+            <p className="font-bold text-sm text-white">O Taxi</p>
             <p className="text-xs text-gray-400">Administration</p>
           </div>
         </div>

@@ -44,7 +44,7 @@ export default function DriverLayout({ children }: { children: React.ReactNode }
             <span className="text-white text-sm">🚗</span>
           </div>
           <div>
-            <p className="font-bold text-gray-900 text-sm leading-tight">Obaid Taxi</p>
+            <p className="font-bold text-gray-900 text-sm leading-tight">O Taxi</p>
             {driver && (
               <p className="text-xs text-gray-500 leading-tight">
                 {driver.first_name} {driver.last_name}

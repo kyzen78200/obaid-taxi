@@ -1,4 +1,4 @@
-// Service Worker — Obaid Taxi (Web Push)
+// Service Worker — O Taxi (Web Push)
 self.addEventListener('push', function (event) {
   if (!event.data) return
 
@@ -6,7 +6,7 @@ self.addEventListener('push', function (event) {
   try {
     payload = event.data.json()
   } catch {
-    payload = { title: 'Obaid Taxi', body: event.data.text() }
+    payload = { title: 'O Taxi', body: event.data.text() }
   }
 
   const options = {

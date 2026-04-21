@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       if (!prefs || prefs.email_booking_recap !== false) {
         await sendEmail(
           clientEmail,
-          'Récapitulatif de votre course Obaid Taxi',
+          'Récapitulatif de votre course O Taxi',
           bookingRecapHtml({
             clientName,
             pickup: booking.pickup_address,

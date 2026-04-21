@@ -3,13 +3,13 @@ import './globals.css'
 import ThemeProvider from '@/components/ThemeProvider'
 
 export const metadata: Metadata = {
-  title: 'Obaid Taxi Admin',
-  description: 'Back-office de gestion Obaid Taxi',
+  title: 'O Taxi Admin',
+  description: 'Back-office de gestion O Taxi',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Obaid Taxi',
+    title: 'O Taxi',
   },
 }
 
@@ -24,6 +24,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="theme-color" content="#2563eb" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body>
         <ThemeProvider>

@@ -126,7 +126,7 @@ async function sendDayBeforeEmails(results: string[]) {
 
     await sendEmail(
       clientEmail,
-      'Rappel — Votre course Obaid Taxi demain',
+      'Rappel — Votre course O Taxi demain',
       bookingReminderDayBeforeHtml({
         clientName,
         pickup: bk.pickup_address,
@@ -164,7 +164,7 @@ async function sendAdminDailyRecap(results: string[]) {
   const dateStr = format(tomorrow, 'd MMMM yyyy', { locale: fr })
   await sendEmail(
     adminEmail,
-    `Obaid Taxi — ${bookings.length} course(s) demain ${dateStr}`,
+    `O Taxi — ${bookings.length} course(s) demain ${dateStr}`,
     adminDailyRecapHtml({
       date: dateStr,
       bookings: bookings.map(bk => ({
