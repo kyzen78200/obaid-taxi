@@ -25,11 +25,11 @@ self.addEventListener('push', function (event) {
 self.addEventListener('notificationclick', function (event) {
   event.notification.close()
 
-  const url = event.notification.data?.url ?? '/driver'
+  const url = event.notification.data?.url ?? '/'
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
       for (const client of clientList) {
-        if (client.url.includes('/driver') && 'focus' in client) {
+        if ('focus' in client) {
           client.focus()
           client.navigate(url)
           return
