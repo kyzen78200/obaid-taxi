@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import NotificationPermissionButton from '@/components/NotificationPermissionButton'
-import { Bell, Mail } from 'lucide-react'
+import { Bell, Mail } from '@/components/Icons'
 
 type NotifPrefs = {
   push_new_broadcast: boolean

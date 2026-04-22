@@ -3,7 +3,7 @@
 import AdminLayout from '@/components/AdminLayout'
 import Link from 'next/link'
 import NotificationPermissionButton from '@/components/NotificationPermissionButton'
-import { Bell } from 'lucide-react'
+import { Bell } from '@/components/Icons'
 
 export default function SettingsPage() {
   return (

@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
-import { MapPin, Flag, User, Phone, FileText, Car, CheckCircle, UserX, AlertTriangle, Clock } from 'lucide-react'
+import { MapPin, Flag, User, Phone, FileText, Car, CheckCircle, UserX, AlertTriangle, Clock } from '@/components/Icons'
 
 interface Booking {
   id: string

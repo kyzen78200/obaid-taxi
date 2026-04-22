@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { CheckCircle, Clock } from 'lucide-react'
+import { CheckCircle, Clock } from '@/components/Icons'
 
 type Tab = 'login' | 'register'
 

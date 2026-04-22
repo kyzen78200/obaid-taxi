@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/components/AdminLayout'
 import { createClient } from '@/lib/supabase/client'
-import { Clock, CheckCircle, Ban } from 'lucide-react'
+import { Clock, CheckCircle, Ban } from '@/components/Icons'
 
 interface Driver {
   id: string

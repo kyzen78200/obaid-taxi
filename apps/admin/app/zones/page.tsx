@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import AdminLayout from '@/components/AdminLayout'
 import { createClient } from '@/lib/supabase/client'
-import { Train, Plane } from 'lucide-react'
+import { Train, Plane } from '@/components/Icons'
 
 interface Zone {
   id: string

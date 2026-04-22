@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import DarkModeToggle from '@/components/DarkModeToggle'
 import PushSubscriber from '@/components/PushSubscriber'
-import { Car, Search, Calendar, Settings } from 'lucide-react'
+import { Car, Search, Calendar, Settings } from '@/components/Icons'
 
 export default function DriverLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()

@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import StatusBadge from '@/components/StatusBadge'
-import { RefreshCw, Search, MapPin, Flag, Ruler, Clock, Euro, FileText, Megaphone, Car, Cross } from 'lucide-react'
-import { CheckCircle } from 'lucide-react'
+import { RefreshCw, Search, MapPin, Flag, Ruler, Clock, Euro, FileText, Megaphone, Car, Cross, CheckCircle } from '@/components/Icons'
 
 interface BroadcastBooking {
   id: string

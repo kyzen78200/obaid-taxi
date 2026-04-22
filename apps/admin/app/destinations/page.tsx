@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import AdminLayout from '@/components/AdminLayout'
 import { createClient } from '@/lib/supabase/client'
-import { Train, Plane, Check } from 'lucide-react'
+import { Train, Plane, Check } from '@/components/Icons'
 
 interface Destination {
   id: string

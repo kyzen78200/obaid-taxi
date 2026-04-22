@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { subscribeForPush } from '@/lib/push-subscribe'
-import { Bell } from 'lucide-react'
+import { Bell } from '@/components/Icons'
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 

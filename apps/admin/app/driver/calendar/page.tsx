@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
-import { Clock, MapPin, Flag, Ruler, Euro } from 'lucide-react'
+import { Clock, MapPin, Flag, Ruler, Euro } from '@/components/Icons'
 
 interface DriverBooking {
   id: string

@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Clock, Ban, AlertTriangle, MapPin, Flag, Ruler, Euro, FileText } from 'lucide-react'
+import { Clock, Ban, AlertTriangle, MapPin, Flag, Ruler, Euro, FileText } from '@/components/Icons'
 
 interface DriverBooking {
   id: string

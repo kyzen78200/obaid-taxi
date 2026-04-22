@@ -1,7 +1,7 @@
 'use client'
 
 import { useTheme } from './ThemeProvider'
-import { Sun, Moon } from 'lucide-react'
+import { Sun, Moon } from '@/components/Icons'
 
 export default function DarkModeToggle({ compact = false }: { compact?: boolean }) {
   const { theme, toggleTheme } = useTheme()

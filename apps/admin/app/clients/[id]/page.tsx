@@ -3,7 +3,7 @@ import AdminLayout from '@/components/AdminLayout'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { AlertTriangle, Star } from 'lucide-react'
+import { AlertTriangle, Star } from '@/components/Icons'
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient()

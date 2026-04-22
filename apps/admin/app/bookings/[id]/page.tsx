@@ -16,7 +16,7 @@ import {
 import { bookingRecapHtml } from '@/lib/resend'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { AlertTriangle, CheckCircle, XCircle, RefreshCw, Star, UserX, Ban, Megaphone, FileText, Cross } from 'lucide-react'
+import { AlertTriangle, CheckCircle, XCircle, RefreshCw, Star, UserX, Ban, Megaphone, FileText, Cross } from '@/components/Icons'
 
 type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'refused' | 'cancelled' | 'no_show' | 'cancellation_requested'
 

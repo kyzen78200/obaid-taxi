@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { Inbox, XCircle, AlertTriangle, Bell, User, Clock } from 'lucide-react'
+import { Inbox, XCircle, AlertTriangle, Bell, User, Clock } from '@/components/Icons'
 
 type AdminNotif = {
   id: string

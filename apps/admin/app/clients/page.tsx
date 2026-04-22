@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import AdminLayout from '@/components/AdminLayout'
 import Link from 'next/link'
-import { User, Users, Star, AlertTriangle } from 'lucide-react'
+import { User, Users, Star, AlertTriangle } from '@/components/Icons'
 
 const PAGE_SIZE = 30
 

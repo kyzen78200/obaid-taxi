@@ -3,7 +3,7 @@ import AdminLayout from '@/components/AdminLayout'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { AlertTriangle, Users } from 'lucide-react'
+import { AlertTriangle, Users } from '@/components/Icons'
 
 export default async function GuestClientDetailPage({
   searchParams,
