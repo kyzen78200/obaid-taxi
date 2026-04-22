@@ -16,6 +16,7 @@ import {
 import { bookingRecapHtml } from '@/lib/resend'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { AlertTriangle, CheckCircle, XCircle, RefreshCw, Star, UserX, Ban, Megaphone, FileText, Cross } from 'lucide-react'
 
 type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'refused' | 'cancelled' | 'no_show' | 'cancellation_requested'
 
@@ -376,7 +377,7 @@ export default async function BookingDetailPage({
         {/* Cancellation request banner */}
         {booking.status === 'cancellation_requested' && (
           <div className="mb-6 bg-amber-50 border border-amber-300 rounded-xl p-4 flex items-start gap-4">
-            <span className="text-2xl">⚠️</span>
+            <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="font-semibold text-amber-900">Le chauffeur a demandé l'annulation de cette course</p>
               <p className="text-sm text-amber-700 mt-1">Approuvez ou refusez la demande pour continuer.</p>
@@ -509,14 +510,14 @@ export default async function BookingDetailPage({
             {/* Attestation PDF */}
             {(booking as any).attestation_url && (
               <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-purple-400">
-                <h2 className="font-semibold text-gray-900 mb-2 text-base">⚕️ Attestation conventionnée</h2>
+                <h2 className="font-semibold text-gray-900 mb-2 text-base flex items-center gap-2"><Cross className="w-4 h-4 text-purple-600" /> Attestation conventionnée</h2>
                 <a
                   href={(booking as any).attestation_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900 font-medium bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors"
                 >
-                  📄 Télécharger l'attestation PDF
+                  <FileText className="w-4 h-4" /> Télécharger l'attestation PDF
                 </a>
               </div>
             )}
@@ -552,8 +553,8 @@ export default async function BookingDetailPage({
               <div className="space-y-3">
                 {canConfirm && (
                   <form action={confirmAction}>
-                    <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
-                      ✅ Confirmer la réservation
+                    <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
+                      <CheckCircle className="w-4 h-4" /> Confirmer la réservation
                     </button>
                   </form>
                 )}
@@ -565,36 +566,36 @@ export default async function BookingDetailPage({
                       rows={2}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 resize-none"
                     />
-                    <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
-                      ❌ Refuser la réservation
+                    <button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
+                      <XCircle className="w-4 h-4" /> Refuser la réservation
                     </button>
                   </form>
                 )}
                 {canRevertPending && (
                   <form action={revertPendingAction}>
-                    <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
-                      ↩️ Retour en attente
+                    <button type="submit" className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
+                      <RefreshCw className="w-4 h-4" /> Retour en attente
                     </button>
                   </form>
                 )}
                 {canComplete && (
                   <form action={completeAction}>
-                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
-                      ⭐ Marquer comme effectuée
+                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
+                      <Star className="w-4 h-4" /> Marquer comme effectuée
                     </button>
                   </form>
                 )}
                 {canNoShow && (
                   <form action={noShowAction}>
-                    <button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
-                      👻 No-show
+                    <button type="submit" className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
+                      <UserX className="w-4 h-4" /> No-show
                     </button>
                   </form>
                 )}
                 {canCancel && (
                   <form action={cancelAction}>
-                    <button type="submit" className="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
-                      🚫 Annuler
+                    <button type="submit" className="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
+                      <Ban className="w-4 h-4" /> Annuler
                     </button>
                   </form>
                 )}
@@ -642,7 +643,7 @@ export default async function BookingDetailPage({
                   {isBroadcast ? (
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
-                        <span className="text-blue-600">📢</span>
+                        <Megaphone className="w-4 h-4 text-blue-600" />
                         <span className="text-xs text-blue-700 font-medium">
                           Envoyée à tous les chauffeurs
                         </span>
@@ -655,8 +656,8 @@ export default async function BookingDetailPage({
                     </div>
                   ) : (
                     <form action={broadcastAction}>
-                      <button type="submit" className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-medium py-2.5 px-4 rounded-lg transition-colors text-sm">
-                        📢 Envoyer à tous les chauffeurs
+                      <button type="submit" className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 font-medium py-2.5 px-4 rounded-lg transition-colors text-sm flex items-center justify-center gap-2">
+                        <Megaphone className="w-4 h-4" /> Envoyer à tous les chauffeurs
                       </button>
                     </form>
                   )}

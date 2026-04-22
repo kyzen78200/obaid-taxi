@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { CheckCircle, Clock } from 'lucide-react'
 
 type Tab = 'login' | 'register'
 
@@ -96,7 +97,7 @@ export default function DriverLoginPage() {
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-              <span className="text-3xl">✅</span>
+              <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-3">Demande envoyée !</h2>
             <p className="text-sm text-gray-600 leading-relaxed mb-6">
@@ -104,8 +105,9 @@ export default function DriverLoginPage() {
               Vous recevrez un e-mail de confirmation dès que votre compte sera validé.
             </p>
             <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-6">
-              <p className="text-xs text-blue-700">
-                ⏱ La validation prend généralement moins de 24 heures.
+              <p className="text-xs text-blue-700 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                La validation prend généralement moins de 24 heures.
               </p>
             </div>
             <button
@@ -126,8 +128,8 @@ export default function DriverLoginPage() {
 
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-600 rounded-2xl mb-4">
-            <span className="text-2xl">🚗</span>
+          <div className="inline-flex items-center justify-center w-14 h-14 mb-4">
+            <img src="/icon-192.png" className="w-12 h-12 rounded-xl" alt="O Taxi" />
           </div>
           <h1 className="text-2xl font-bold text-white">Espace Chauffeur</h1>
           <p className="text-gray-400 mt-1 text-sm">O Taxi</p>
@@ -214,7 +216,7 @@ export default function DriverLoginPage() {
               <>
                 <p className="text-center text-gray-500 text-sm mb-6">
                   Pas encore de compte ?{' '}
-                  <span className="font-semibold text-blue-700">Prends la route avec nous !</span> 🚗
+                  <span className="font-semibold text-blue-700">Prends la route avec nous !</span>
                 </p>
 
                 <form onSubmit={handleRegister} className="space-y-4">

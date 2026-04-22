@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import AdminLayout from '@/components/AdminLayout'
 import Link from 'next/link'
+import { User, Users, Star, AlertTriangle } from 'lucide-react'
 
 const PAGE_SIZE = 30
 
@@ -151,7 +152,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">👤</span>
+                  <User className="w-5 h-5 text-blue-600" />
                   <h2 className="font-semibold text-gray-900">Comptes enregistrés</h2>
                 </div>
                 <span className="text-sm text-gray-400">{totalRegistered}</span>
@@ -180,7 +181,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
                           <td className="px-6 py-4 font-medium text-gray-900">{client.full_name ?? '—'}</td>
                           <td className="px-6 py-4 text-gray-600">{client.phone ?? '—'}</td>
                           <td className="px-6 py-4">
-                            <span className="text-yellow-700 font-medium">⭐ {client.loyalty_points ?? 0}</span>
+                            <span className="text-yellow-700 font-medium flex items-center gap-1"><Star className="w-3.5 h-3.5" /> {client.loyalty_points ?? 0}</span>
                           </td>
                           <td className="px-6 py-4 text-gray-500 text-xs">
                             {new Date(client.created_at).toLocaleDateString('fr-FR')}
@@ -188,7 +189,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
                           <td className="px-6 py-4">
                             {noShowCount > 0 && (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                ⚠️ {noShowCount} no-show
+                                <AlertTriangle className="w-3 h-3" /> {noShowCount} no-show
                               </span>
                             )}
                           </td>
@@ -212,7 +213,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg">🚶</span>
+                  <Users className="w-5 h-5 text-gray-500" />
                   <h2 className="font-semibold text-gray-900">Clients invités</h2>
                 </div>
                 <span className="text-sm text-gray-400">{totalGuests}</span>
@@ -243,7 +244,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
                           <td className="px-6 py-4">
                             {noShowCount > 0 && (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                ⚠️ {noShowCount} no-show
+                                <AlertTriangle className="w-3 h-3" /> {noShowCount} no-show
                               </span>
                             )}
                           </td>

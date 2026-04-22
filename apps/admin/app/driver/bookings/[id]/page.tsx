@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
+import { MapPin, Flag, User, Phone, FileText, Car, CheckCircle, UserX, AlertTriangle, Clock } from 'lucide-react'
 
 interface Booking {
   id: string
@@ -91,8 +92,8 @@ export default function DriverBookingDetailPage() {
       })
       setBooking(prev => prev ? { ...prev, status: newStatus } : prev)
       showNotif(
-        newStatus === 'in_progress' ? '🚗 Vous êtes en route !' :
-        newStatus === 'completed' ? '✅ Course effectuée' :
+        newStatus === 'in_progress' ? 'Vous êtes en route !' :
+        newStatus === 'completed' ? 'Course effectuée' :
         newStatus === 'no_show' ? 'No-show enregistré' :
         newStatus === 'cancellation_requested' ? 'Demande d\'annulation envoyée à l\'admin' :
         'Statut mis à jour',
@@ -145,14 +146,14 @@ export default function DriverBookingDetailPage() {
 
           <div className="space-y-3">
             <div className="flex gap-3">
-              <span className="text-lg mt-0.5">📍</span>
+              <MapPin className="w-5 h-5 mt-0.5 text-gray-400 flex-shrink-0" />
               <div>
                 <p className="text-xs text-gray-400 font-medium mb-0.5">Départ</p>
                 <p className="text-sm text-gray-900 font-medium">{booking.pickup_address}</p>
               </div>
             </div>
             <div className="flex gap-3">
-              <span className="text-lg mt-0.5">🏁</span>
+              <Flag className="w-5 h-5 mt-0.5 text-gray-400 flex-shrink-0" />
               <div>
                 <p className="text-xs text-gray-400 font-medium mb-0.5">Arrivée</p>
                 <p className="text-sm text-gray-900 font-medium">{booking.dropoff_address}</p>
@@ -210,12 +211,12 @@ export default function DriverBookingDetailPage() {
           <h2 className="font-semibold text-gray-900 mb-4">Client</h2>
           <div className="flex gap-4 text-sm">
             <div className="flex gap-2 items-center">
-              <span>👤</span>
+              <User className="w-4 h-4 text-gray-400" />
               <span className="text-gray-900">{booking.guest_name ?? 'Client enregistré'}</span>
             </div>
             {booking.guest_phone && (
               <a href={`tel:${booking.guest_phone}`} className="flex gap-2 items-center text-blue-700 hover:underline font-medium">
-                <span>📞</span>
+                <Phone className="w-4 h-4" />
                 <span>{booking.guest_phone}</span>
               </a>
             )}
@@ -225,7 +226,7 @@ export default function DriverBookingDetailPage() {
         {/* Attestation PDF */}
         {(booking as any).attestation_url && (
           <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-center gap-3">
-            <span className="text-xl">📄</span>
+            <FileText className="w-5 h-5 text-purple-600 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-xs font-medium text-purple-700 mb-1">Attestation conventionnée</p>
               <a
@@ -257,27 +258,27 @@ export default function DriverBookingDetailPage() {
                 <button
                   onClick={() => updateStatus('in_progress')}
                   disabled={saving}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-colors text-sm"
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
                 >
-                  🚗 Je suis en route
+                  <Car className="w-4 h-4" /> Je suis en route
                 </button>
               )}
               {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
                 <button
                   onClick={() => updateStatus('completed')}
                   disabled={saving}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-colors text-sm"
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
                 >
-                  ✅ Course effectuée
+                  <CheckCircle className="w-4 h-4" /> Course effectuée
                 </button>
               )}
               {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
                 <button
                   onClick={() => updateStatus('no_show')}
                   disabled={saving}
-                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-colors text-sm"
+                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
                 >
-                  👻 Client non présent (no-show)
+                  <UserX className="w-4 h-4" /> Client non présent (no-show)
                 </button>
               )}
               {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
@@ -288,9 +289,9 @@ export default function DriverBookingDetailPage() {
                     }
                   }}
                   disabled={saving}
-                  className="w-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 font-medium py-3 px-4 rounded-xl transition-colors text-sm"
+                  className="w-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-700 font-medium py-3 px-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
                 >
-                  ⚠️ Demander l'annulation à l'admin
+                  <AlertTriangle className="w-4 h-4" /> Demander l'annulation à l'admin
                 </button>
               )}
             </div>
@@ -299,7 +300,7 @@ export default function DriverBookingDetailPage() {
 
         {booking.status === 'cancellation_requested' && (
           <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 text-center">
-            <p className="text-sm text-amber-800 font-medium">⏳ Demande d'annulation en attente de décision admin</p>
+            <p className="text-sm text-amber-800 font-medium flex items-center justify-center gap-2"><Clock className="w-4 h-4" /> Demande d'annulation en attente de décision admin</p>
           </div>
         )}
 

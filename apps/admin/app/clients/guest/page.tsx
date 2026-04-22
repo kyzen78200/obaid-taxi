@@ -3,6 +3,7 @@ import AdminLayout from '@/components/AdminLayout'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { AlertTriangle, Users } from 'lucide-react'
 
 export default async function GuestClientDetailPage({
   searchParams,
@@ -42,7 +43,7 @@ export default async function GuestClientDetailPage({
         {/* No-show alert */}
         {noShowCount > 0 && (
           <div className="mb-6 bg-red-50 border border-red-300 rounded-xl p-4 flex items-center gap-4">
-            <span className="text-3xl">⚠️</span>
+            <AlertTriangle className="w-8 h-8 text-red-500 flex-shrink-0" />
             <div>
               <p className="font-semibold text-red-900">Attention — {noShowCount} no-show enregistré{noShowCount > 1 ? 's' : ''}</p>
               <p className="text-sm text-red-700 mt-0.5">Ce client ne s'est pas présenté à {noShowCount} reprise{noShowCount > 1 ? 's' : ''}.</p>
@@ -56,7 +57,7 @@ export default async function GuestClientDetailPage({
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                  <span className="text-gray-500 text-xl">🚶</span>
+                  <Users className="w-6 h-6 text-gray-500" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900">{firstBooking.guest_name ?? 'Invité'}</p>

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import DarkModeToggle from '@/components/DarkModeToggle'
 import PushSubscriber from '@/components/PushSubscriber'
+import { Car, Search, Calendar, Settings } from 'lucide-react'
 
 export default function DriverLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
@@ -28,10 +29,10 @@ export default function DriverLayout({ children }: { children: React.ReactNode }
   }, [])
 
   const navLinks = [
-    { href: '/driver',          label: 'Mes courses', icon: '🚗' },
-    { href: '/driver/search',   label: 'Chercher',    icon: '🔍' },
-    { href: '/driver/calendar', label: 'Agenda',      icon: '📅' },
-    { href: '/driver/settings', label: 'Paramètres',  icon: '⚙️' },
+    { href: '/driver',          label: 'Mes courses', icon: <Car className="w-5 h-5" /> },
+    { href: '/driver/search',   label: 'Chercher',    icon: <Search className="w-5 h-5" /> },
+    { href: '/driver/calendar', label: 'Agenda',      icon: <Calendar className="w-5 h-5" /> },
+    { href: '/driver/settings', label: 'Paramètres',  icon: <Settings className="w-5 h-5" /> },
   ]
 
   return (
@@ -40,8 +41,8 @@ export default function DriverLayout({ children }: { children: React.ReactNode }
       {/* Top header */}
       <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-sm">🚗</span>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <img src="/icon-192.png" className="w-7 h-7 rounded-lg" alt="O Taxi" />
           </div>
           <div>
             <p className="font-bold text-gray-900 text-sm leading-tight">O Taxi</p>
@@ -77,7 +78,7 @@ export default function DriverLayout({ children }: { children: React.ReactNode }
                 isActive ? 'text-blue-600' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              <span className="text-xl leading-none">{link.icon}</span>
+              <span className="leading-none">{link.icon}</span>
               <span className={`text-xs font-medium ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
                 {link.label}
               </span>

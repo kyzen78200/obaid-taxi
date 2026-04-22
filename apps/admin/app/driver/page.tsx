@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { Clock, Ban, AlertTriangle, MapPin, Flag, Ruler, Euro, FileText } from 'lucide-react'
 
 interface DriverBooking {
   id: string
@@ -78,15 +79,16 @@ export default function DriverDashboardPage() {
     return (
       <div className="flex h-full min-h-[60vh] items-center justify-center px-4">
         <div className="bg-white rounded-2xl shadow-sm p-8 text-center max-w-sm w-full">
-          <p className="text-5xl mb-4">⏳</p>
+          <div className="flex justify-center mb-4"><Clock className="w-12 h-12 text-amber-500" /></div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Compte en cours de révision</h1>
           <p className="text-sm text-gray-500 leading-relaxed">
             Votre demande d'inscription est en cours d'examen par l'administrateur.
             Vous recevrez un e-mail de confirmation dès que votre compte sera validé.
           </p>
           <div className="mt-6 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-            <p className="text-xs text-amber-700">
-              ⏱ La validation prend généralement moins de 24 h.
+            <p className="text-xs text-amber-700 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+              La validation prend généralement moins de 24 h.
             </p>
           </div>
         </div>
@@ -99,7 +101,7 @@ export default function DriverDashboardPage() {
     return (
       <div className="flex h-full min-h-[60vh] items-center justify-center px-4">
         <div className="bg-white rounded-2xl shadow-sm p-8 text-center max-w-sm w-full">
-          <p className="text-5xl mb-4">🚫</p>
+          <div className="flex justify-center mb-4"><Ban className="w-12 h-12 text-red-500" /></div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Compte révoqué</h1>
           <p className="text-sm text-gray-500 leading-relaxed">
             Votre compte chauffeur a été révoqué. Pour toute demande de réactivation,
@@ -120,7 +122,7 @@ export default function DriverDashboardPage() {
     return (
       <div className="flex h-full min-h-[60vh] items-center justify-center px-4">
         <div className="bg-white rounded-2xl shadow-sm p-8 text-center max-w-sm w-full">
-          <p className="text-5xl mb-4">⚠️</p>
+          <div className="flex justify-center mb-4"><AlertTriangle className="w-12 h-12 text-yellow-500" /></div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Accès non autorisé</h1>
           <p className="text-sm text-gray-500 mb-4">
             Aucun compte chauffeur n'est associé à cet e-mail.
@@ -172,14 +174,14 @@ export default function DriverDashboardPage() {
               {/* Trajet */}
               <div className="px-5 py-4 space-y-2">
                 <div className="flex gap-3">
-                  <span className="text-base mt-0.5">📍</span>
+                  <MapPin className="w-4 h-4 mt-0.5 text-gray-400 flex-shrink-0" />
                   <div>
                     <p className="text-xs text-gray-400 font-medium">Départ</p>
                     <p className="text-sm text-gray-900">{booking.pickup_address}</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <span className="text-base mt-0.5">🏁</span>
+                  <Flag className="w-4 h-4 mt-0.5 text-gray-400 flex-shrink-0" />
                   <div>
                     <p className="text-xs text-gray-400 font-medium">Arrivée</p>
                     <p className="text-sm text-gray-900">{booking.dropoff_address}</p>
@@ -187,10 +189,10 @@ export default function DriverDashboardPage() {
                 </div>
 
                 <div className="flex gap-4 pt-1 text-xs text-gray-500">
-                  {booking.distance_km != null && <span>📏 {booking.distance_km} km</span>}
-                  {booking.duration_min != null && <span>⏱ {booking.duration_min} min</span>}
-                  <span>
-                    💶 {booking.base_price != null
+                  {booking.distance_km != null && <span className="flex items-center gap-1"><Ruler className="w-3.5 h-3.5" /> {booking.distance_km} km</span>}
+                  {booking.duration_min != null && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {booking.duration_min} min</span>}
+                  <span className="flex items-center gap-1">
+                    <Euro className="w-3.5 h-3.5" /> {booking.base_price != null
                       ? `${booking.base_price.toFixed(2)} €`
                       : booking.estimated_min != null
                       ? `~${booking.estimated_min}–${booking.estimated_max} €`
@@ -200,7 +202,7 @@ export default function DriverDashboardPage() {
 
                 {booking.notes && (
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2 mt-1">
-                    <p className="text-xs text-yellow-800">📝 {booking.notes}</p>
+                    <p className="text-xs text-yellow-800 flex items-center gap-1"><FileText className="w-3.5 h-3.5 flex-shrink-0" /> {booking.notes}</p>
                   </div>
                 )}
               </div>

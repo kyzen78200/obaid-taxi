@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import NotificationPermissionButton from '@/components/NotificationPermissionButton'
+import { Bell, Mail } from 'lucide-react'
 
 type NotifPrefs = {
   push_new_broadcast: boolean
@@ -89,7 +90,7 @@ export default function DriverSettingsPage() {
       .from('driver_notification_preferences')
       .upsert({ ...notifPrefs, driver_id: userId, updated_at: new Date().toISOString() }, { onConflict: 'driver_id' })
     setSavingNotifs(false)
-    showNotif('Préférences de notifications enregistrées ✓', 'success')
+    showNotif('Préférences de notifications enregistrées', 'success')
   }
 
   function toggleNotif(key: keyof NotifPrefs) {
@@ -118,7 +119,7 @@ export default function DriverSettingsPage() {
       .eq('id', driverId)
 
     if (error) showNotif('Erreur lors de la sauvegarde', 'error')
-    else showNotif('Informations mises à jour ✓', 'success')
+    else showNotif('Informations mises à jour', 'success')
     setSaving(false)
   }
 
@@ -152,7 +153,7 @@ export default function DriverSettingsPage() {
     const { error } = await supabase.auth.updateUser({ password: newPassword })
     if (error) showNotif('Erreur lors du changement de mot de passe', 'error')
     else {
-      showNotif('Mot de passe changé avec succès ✓', 'success')
+      showNotif('Mot de passe changé avec succès', 'success')
       setCurrentPassword('')
       setNewPassword('')
       setConfirmPassword('')
@@ -287,7 +288,7 @@ export default function DriverSettingsPage() {
 
       {/* Notifications push */}
       <div className="bg-white rounded-xl shadow-sm p-5">
-        <h2 className="font-semibold text-gray-900 mb-4">🔔 Notifications push</h2>
+        <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Bell className="w-4 h-4" /> Notifications push</h2>
         <NotificationPermissionButton />
         <div className="space-y-1 mt-2">
           {([
@@ -312,7 +313,7 @@ export default function DriverSettingsPage() {
 
       {/* Notifications email */}
       <div className="bg-white rounded-xl shadow-sm p-5">
-        <h2 className="font-semibold text-gray-900 mb-4">📧 Notifications e-mail</h2>
+        <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2"><Mail className="w-4 h-4" /> Notifications e-mail</h2>
         <div className="space-y-1">
           {([
             { key: 'email_welcome',          label: 'E-mail de bienvenue à l\'inscription' },

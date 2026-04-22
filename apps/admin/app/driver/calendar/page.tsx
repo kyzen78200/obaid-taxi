@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
+import { Clock, MapPin, Flag, Ruler, Euro } from 'lucide-react'
 
 interface DriverBooking {
   id: string
@@ -338,8 +339,8 @@ export default function DriverCalendarPage() {
                 <div className="flex-1 px-4 py-4">
                   {/* Time + status */}
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-bold text-gray-900">
-                      🕐 {formatTime(booking.scheduled_at)}
+                    <span className="text-sm font-bold text-gray-900 flex items-center gap-1">
+                      <Clock className="w-4 h-4" /> {formatTime(booking.scheduled_at)}
                     </span>
                     <StatusBadge status={booking.status} />
                   </div>
@@ -347,21 +348,21 @@ export default function DriverCalendarPage() {
                   {/* Route */}
                   <div className="space-y-1">
                     <div className="flex gap-2 text-sm">
-                      <span className="text-gray-400 flex-shrink-0">📍</span>
+                      <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       <span className="text-gray-700 truncate">{booking.pickup_address}</span>
                     </div>
                     <div className="flex gap-2 text-sm">
-                      <span className="text-gray-400 flex-shrink-0">🏁</span>
+                      <Flag className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       <span className="text-gray-700 truncate">{booking.dropoff_address}</span>
                     </div>
                   </div>
 
                   {/* Meta */}
                   <div className="flex gap-3 mt-2 text-xs text-gray-400">
-                    {booking.distance_km != null && <span>📏 {booking.distance_km} km</span>}
-                    {booking.duration_min != null && <span>⏱ {booking.duration_min} min</span>}
-                    <span>
-                      💶 {booking.base_price != null
+                    {booking.distance_km != null && <span className="flex items-center gap-1"><Ruler className="w-3.5 h-3.5" /> {booking.distance_km} km</span>}
+                    {booking.duration_min != null && <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {booking.duration_min} min</span>}
+                    <span className="flex items-center gap-1">
+                      <Euro className="w-3.5 h-3.5" /> {booking.base_price != null
                         ? `${booking.base_price.toFixed(2)} €`
                         : booking.estimated_min != null
                         ? `~${booking.estimated_min}–${booking.estimated_max} €`

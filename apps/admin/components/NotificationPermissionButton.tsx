@@ -63,7 +63,7 @@ export default function NotificationPermissionButton() {
           <p className="text-sm text-gray-700">Notifications push</p>
           <p className="text-xs text-green-600 mt-0.5">Activées sur cet appareil</p>
         </div>
-        <span className="text-xs text-green-700 bg-green-50 px-2 py-1 rounded-full">✓ Activées</span>
+        <span className="text-xs text-green-700 bg-green-50 px-2 py-1 rounded-full">Activées</span>
       </div>
     )
   }

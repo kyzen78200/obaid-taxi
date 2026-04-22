@@ -3,6 +3,7 @@ import AdminLayout from '@/components/AdminLayout'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { AlertTriangle, Star } from 'lucide-react'
 
 export default async function ClientDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
@@ -51,7 +52,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
         {/* No-show alert */}
         {noShowCount > 0 && (
           <div className="mb-6 bg-red-50 border border-red-300 rounded-xl p-4 flex items-center gap-4">
-            <span className="text-3xl">⚠️</span>
+            <AlertTriangle className="w-8 h-8 text-red-500 flex-shrink-0" />
             <div>
               <p className="font-semibold text-red-900">Attention — {noShowCount} no-show enregistré{noShowCount > 1 ? 's' : ''}</p>
               <p className="text-sm text-red-700 mt-0.5">Ce client ne s'est pas présenté à {noShowCount} reprise{noShowCount > 1 ? 's' : ''}.</p>
@@ -103,7 +104,7 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                   <p className="text-xs text-blue-600 mt-1">Course{totalRides > 1 ? 's' : ''} effectuée{totalRides > 1 ? 's' : ''}</p>
                 </div>
                 <div className="text-center p-3 bg-yellow-50 rounded-xl">
-                  <p className="text-2xl font-bold text-yellow-700">⭐ {client.loyalty_points ?? 0}</p>
+                  <p className="text-2xl font-bold text-yellow-700 flex items-center justify-center gap-1"><Star className="w-5 h-5" /> {client.loyalty_points ?? 0}</p>
                   <p className="text-xs text-yellow-600 mt-1">Points fidélité</p>
                 </div>
                 <div className="text-center p-3 bg-green-50 rounded-xl">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import AdminLayout from '@/components/AdminLayout'
 import { createClient } from '@/lib/supabase/client'
+import { Clock, CheckCircle, Ban } from 'lucide-react'
 
 interface Driver {
   id: string
@@ -239,7 +240,7 @@ export default function DriversPage() {
             {pending.length > 0 && (
               <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-yellow-200">
                 <div className="px-6 py-4 border-b border-yellow-100 bg-yellow-50 flex items-center gap-2">
-                  <span className="text-lg">⏳</span>
+                  <Clock className="w-5 h-5 text-yellow-600" />
                   <h2 className="font-semibold text-yellow-900">En attente d'approbation</h2>
                   <span className="text-sm text-yellow-600 ml-auto">{pending.length}</span>
                 </div>
@@ -282,7 +283,7 @@ export default function DriversPage() {
             {/* Approved drivers */}
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                <span className="text-lg">✅</span>
+                <CheckCircle className="w-5 h-5 text-green-600" />
                 <h2 className="font-semibold text-gray-900">Chauffeurs actifs</h2>
                 <span className="text-sm text-gray-400 ml-auto">{approved.length}</span>
               </div>
@@ -327,7 +328,7 @@ export default function DriversPage() {
             {revoked.length > 0 && (
               <div className="bg-white rounded-xl shadow-sm overflow-hidden">
                 <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                  <span className="text-lg">🚫</span>
+                  <Ban className="w-5 h-5 text-red-500" />
                   <h2 className="font-semibold text-gray-900">Accès révoqués</h2>
                   <span className="text-sm text-gray-400 ml-auto">{revoked.length}</span>
                 </div>

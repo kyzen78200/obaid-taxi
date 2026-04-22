@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { Inbox, XCircle, AlertTriangle, Bell, User, Clock } from 'lucide-react'
 
 type AdminNotif = {
   id: string
@@ -14,13 +15,13 @@ type AdminNotif = {
   created_at: string
 }
 
-const TYPE_ICONS: Record<string, string> = {
-  new_booking: '📥',
-  booking_cancelled: '❌',
-  unassigned_urgent: '⚠️',
-  no_show: '🚨',
-  new_driver: '👤',
-  broadcast_timeout: '🔔',
+const TYPE_ICON_MAP: Record<string, React.ReactNode> = {
+  new_booking: <Inbox className="w-5 h-5 text-blue-600" />,
+  booking_cancelled: <XCircle className="w-5 h-5 text-red-500" />,
+  unassigned_urgent: <AlertTriangle className="w-5 h-5 text-amber-500" />,
+  no_show: <AlertTriangle className="w-5 h-5 text-red-600" />,
+  new_driver: <User className="w-5 h-5 text-gray-600" />,
+  broadcast_timeout: <Clock className="w-5 h-5 text-gray-500" />,
 }
 
 export default function AdminNotificationBell() {
@@ -131,7 +132,7 @@ export default function AdminNotificationBell() {
                   onClick={() => { markRead(notif.id); setOpen(false) }}
                   className={`flex gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50 transition-colors ${!notif.read ? 'bg-blue-50' : ''}`}
                 >
-                  <span className="text-lg flex-shrink-0 mt-0.5">{TYPE_ICONS[notif.type] ?? '🔔'}</span>
+                  <span className="flex-shrink-0 mt-0.5">{TYPE_ICON_MAP[notif.type] ?? <Bell className="w-5 h-5 text-gray-500" />}</span>
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium text-gray-900 truncate ${!notif.read ? 'font-semibold' : ''}`}>
                       {notif.title}

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import AdminLayout from '@/components/AdminLayout'
 import { createClient } from '@/lib/supabase/client'
+import { Train, Plane } from 'lucide-react'
 
 interface Zone {
   id: string
@@ -305,7 +306,7 @@ export default function ZonesPage() {
 
                 {stations.length > 0 && (
                   <div className="mb-4">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">🚉 Gares</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1"><Train className="w-3.5 h-3.5" /> Gares</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {stations.map(dest => (
                         <div key={dest.name} className="flex items-center gap-2">
@@ -326,7 +327,7 @@ export default function ZonesPage() {
 
                 {airports.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">✈️ Aéroports</p>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1"><Plane className="w-3.5 h-3.5" /> Aéroports</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {airports.map(dest => (
                         <div key={dest.name} className="flex items-center gap-2">

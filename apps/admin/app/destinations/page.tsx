@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import AdminLayout from '@/components/AdminLayout'
 import { createClient } from '@/lib/supabase/client'
+import { Train, Plane, Check } from 'lucide-react'
 
 interface Destination {
   id: string
@@ -31,7 +32,7 @@ function loadGoogleMaps(apiKey: string): Promise<void> {
 }
 
 // Composant champ adresse avec Google Places Autocomplete
-// ⚠️ Input NON-CONTRÔLÉ : "value" React interfère avec le dropdown natif Google
+// Input NON-CONTRÔLÉ : "value" React interfère avec le dropdown natif Google
 function PlacesInput({
   initialValue,
   onInput,
@@ -232,7 +233,7 @@ export default function DestinationsPage() {
               {/* Confirmation coordonnées */}
               {coordsConfirmed && formLat != null && formLng != null && (
                 <div className="col-span-2 flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-                  <span className="text-green-600 text-sm">✓</span>
+                  <Check className="w-4 h-4 text-green-600" />
                   <span className="text-xs text-green-700 font-medium">
                     Coordonnées enregistrées : {formLat.toFixed(5)}, {formLng.toFixed(5)}
                   </span>
@@ -243,8 +244,8 @@ export default function DestinationsPage() {
                 <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
                 <select value={formType} onChange={e => setFormType(e.target.value as 'station' | 'airport')}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="station">🚉 Gare</option>
-                  <option value="airport">✈️ Aéroport</option>
+                  <option value="station">Gare</option>
+                  <option value="airport">Aéroport</option>
                 </select>
               </div>
             </div>
@@ -269,7 +270,7 @@ export default function DestinationsPage() {
             {/* Gares */}
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                <span className="text-lg">🚉</span>
+                <Train className="w-5 h-5 text-gray-600" />
                 <h2 className="font-semibold text-gray-900">Gares</h2>
                 <span className="text-sm text-gray-400 ml-auto">{stations.length}</span>
               </div>
@@ -309,7 +310,7 @@ export default function DestinationsPage() {
             {/* Aéroports */}
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-                <span className="text-lg">✈️</span>
+                <Plane className="w-5 h-5 text-gray-600" />
                 <h2 className="font-semibold text-gray-900">Aéroports</h2>
                 <span className="text-sm text-gray-400 ml-auto">{airports.length}</span>
               </div>

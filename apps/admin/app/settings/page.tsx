@@ -3,6 +3,7 @@
 import AdminLayout from '@/components/AdminLayout'
 import Link from 'next/link'
 import NotificationPermissionButton from '@/components/NotificationPermissionButton'
+import { Bell } from 'lucide-react'
 
 export default function SettingsPage() {
   return (
@@ -13,7 +14,7 @@ export default function SettingsPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm p-5 mb-4">
-          <h2 className="font-semibold text-gray-900 mb-2">🔔 Notifications push</h2>
+          <h2 className="font-semibold text-gray-900 mb-2 flex items-center gap-2"><Bell className="w-4 h-4" /> Notifications push</h2>
           <p className="text-xs text-gray-500 mb-3">Activez les notifications sur cet appareil pour être alerté des nouvelles réservations.</p>
           <NotificationPermissionButton />
         </div>
