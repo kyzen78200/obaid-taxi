@@ -45,7 +45,7 @@ const DEFAULT_PREFS: NotifPrefs = {
 
 export default function AccountScreen() {
   const router = useRouter()
-  const { user, profile, setProfile } = useAuthStore()
+  const { user, profile, setProfile, signOut } = useAuthStore()
 
   const [fullName, setFullName] = useState(profile?.full_name ?? '')
   const [phone, setPhone] = useState(profile?.phone ?? '')
@@ -58,6 +58,7 @@ export default function AccountScreen() {
 
   const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>(DEFAULT_PREFS)
   const [savingNotifs, setSavingNotifs] = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
 
   useEffect(() => {
     if (user?.id) loadNotifPrefs()
@@ -143,6 +144,55 @@ export default function AccountScreen() {
     } finally {
       setSavingPassword(false)
     }
+  }
+
+  function handleDeleteAccount() {
+    Alert.alert(
+      'Supprimer mon compte',
+      'Cette action est définitive et irréversible.\n\n• Votre compte sera supprimé immédiatement\n• Vos données personnelles seront effacées\n• Vos réservations passées seront anonymisées\n\nVoulez-vous continuer ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer mon compte',
+          style: 'destructive',
+          onPress: () => {
+            Alert.alert(
+              'Dernière confirmation',
+              'Votre compte sera définitivement supprimé. Cette action est irréversible.',
+              [
+                { text: 'Annuler', style: 'cancel' },
+                {
+                  text: 'Oui, supprimer définitivement',
+                  style: 'destructive',
+                  onPress: async () => {
+                    setDeletingAccount(true)
+                    try {
+                      const { session } = useAuthStore.getState()
+                      const adminUrl = process.env.EXPO_PUBLIC_ADMIN_URL ?? 'http://localhost:3001'
+                      const res = await fetch(`${adminUrl}/api/delete-account`, {
+                        method: 'POST',
+                        headers: { Authorization: `Bearer ${session?.access_token}` },
+                      })
+                      if (!res.ok) {
+                        const body = await res.json().catch(() => ({}))
+                        Alert.alert('Erreur', body.error ?? 'Impossible de supprimer le compte. Réessayez.')
+                        return
+                      }
+                      await signOut()
+                      router.replace('/(auth)/welcome')
+                    } catch {
+                      Alert.alert('Erreur', 'Impossible de supprimer le compte. Vérifiez votre connexion.')
+                    } finally {
+                      setDeletingAccount(false)
+                    }
+                  },
+                },
+              ]
+            )
+          },
+        },
+      ]
+    )
   }
 
   return (
@@ -303,6 +353,23 @@ export default function AccountScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* Suppression du compte */}
+          <View style={styles.deleteSection}>
+            <Text style={styles.deleteHint}>
+              La suppression de votre compte est définitive et irréversible. Toutes vos données personnelles seront effacées.
+            </Text>
+            <TouchableOpacity
+              style={[styles.deleteButton, deletingAccount && styles.disabledButton]}
+              onPress={handleDeleteAccount}
+              disabled={deletingAccount}
+            >
+              {deletingAccount
+                ? <ActivityIndicator color="#EF4444" />
+                : <Text style={styles.deleteButtonText}>Supprimer mon compte</Text>
+              }
+            </TouchableOpacity>
+          </View>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -402,5 +469,28 @@ const styles = StyleSheet.create({
     color: '#374151',
     flex: 1,
     paddingRight: 12,
+  },
+  deleteSection: {
+    gap: 12,
+    paddingTop: 8,
+  },
+  deleteHint: {
+    fontSize: 13,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  deleteButton: {
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+  },
+  deleteButtonText: {
+    color: '#EF4444',
+    fontSize: 15,
+    fontWeight: '600',
   },
 })
