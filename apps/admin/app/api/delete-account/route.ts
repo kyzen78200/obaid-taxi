@@ -15,10 +15,11 @@ export async function POST(req: NextRequest) {
     const userId = user!.id
     const steps: string[] = []
 
-    // 1. Anonymize bookings
+    // 1. Anonymize bookings — keep guest_name/phone placeholders to satisfy
+    // the booking_has_client_or_guest CHECK constraint
     const { error: e1 } = await supabaseAdmin
       .from('bookings')
-      .update({ client_id: null, guest_name: null, guest_phone: null, guest_email: null })
+      .update({ client_id: null, guest_name: 'Compte supprimé', guest_phone: '***', guest_email: null })
       .eq('client_id', userId)
     if (e1) return NextResponse.json({ error: `step1_bookings: ${e1.message}` }, { status: 500 })
     steps.push('bookings anonymized')
