@@ -23,19 +23,8 @@ export async function POST(req: NextRequest) {
       })
       .eq('client_id', user!.id)
 
-    // Delete loyalty transactions
-    await supabaseAdmin
-      .from('loyalty_transactions')
-      .delete()
-      .eq('client_id', user!.id)
-
-    // Delete profile (may cascade, but explicit is safer)
-    await supabaseAdmin
-      .from('profiles')
-      .delete()
-      .eq('id', user!.id)
-
-    // Delete auth user — this is the final, irreversible step
+    // Delete auth user — cascades automatically to profiles, loyalty_transactions,
+    // push_tokens, notification_preferences via ON DELETE CASCADE
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user!.id)
     if (deleteError) {
       return NextResponse.json({ error: deleteError.message }, { status: 500 })
