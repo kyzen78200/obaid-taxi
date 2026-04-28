@@ -36,6 +36,7 @@ export default function DriverBookingDetailPage() {
 
   const [booking, setBooking] = useState<Booking | null>(null)
   const [driverRecord, setDriverRecord] = useState<{ id: string; first_name: string; last_name: string } | null>(null)
+  const [attestationSignedUrl, setAttestationSignedUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
@@ -66,6 +67,20 @@ export default function DriverBookingDetailPage() {
     if (error || !data) { router.push('/'); return }
 
     setBooking(data)
+
+    // Signed URL for attestation (private bucket)
+    if (data.attestation_url) {
+      const pathMatch = data.attestation_url.match(/\/attestations\/(.+)$/)
+      if (pathMatch) {
+        const { data: signed } = await supabase.storage
+          .from('attestations')
+          .createSignedUrl(decodeURIComponent(pathMatch[1]), 3600)
+        setAttestationSignedUrl(signed?.signedUrl ?? data.attestation_url)
+      } else {
+        setAttestationSignedUrl(data.attestation_url)
+      }
+    }
+
     setLoading(false)
   }
 
@@ -76,6 +91,15 @@ export default function DriverBookingDetailPage() {
 
   async function updateStatus(newStatus: string) {
     if (!booking || !driverRecord) return
+
+    if (newStatus === 'completed' && new Date(booking.scheduled_at) > new Date()) {
+      const scheduled = new Date(booking.scheduled_at).toLocaleString('fr-FR', {
+        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+      })
+      showNotif(`Course prévue le ${scheduled} — impossible de clôturer avant l'heure.`, 'error')
+      return
+    }
+
     setSaving(true)
     const { error } = await supabase
       .from('bookings')
@@ -120,6 +144,7 @@ export default function DriverBookingDetailPage() {
   if (!booking) return null
 
   const isActive = ['confirmed', 'in_progress'].includes(booking.status)
+  const scheduledPast = new Date(booking.scheduled_at) <= new Date()
 
   return (
     <div>
@@ -221,19 +246,20 @@ export default function DriverBookingDetailPage() {
           </div>
         </div>
 
-        {booking.attestation_url && (
+        {attestationSignedUrl && (
           <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-center gap-3">
             <FileText className="w-5 h-5 text-purple-600 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-xs font-medium text-purple-700 mb-1">Attestation conventionnée</p>
               <a
-                href={booking.attestation_url}
+                href={attestationSignedUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-purple-800 font-semibold hover:underline"
               >
                 Télécharger l'attestation PDF
               </a>
+              <p className="text-xs text-purple-400 mt-0.5">Lien valide 1 heure</p>
             </div>
           </div>
         )}
@@ -259,13 +285,24 @@ export default function DriverBookingDetailPage() {
                 </button>
               )}
               {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
-                <button
-                  onClick={() => updateStatus('completed')}
-                  disabled={saving}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
-                >
-                  <CheckCircle className="w-4 h-4" /> Course effectuée
-                </button>
+                scheduledPast ? (
+                  <button
+                    onClick={() => updateStatus('completed')}
+                    disabled={saving}
+                    className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-colors text-sm flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle className="w-4 h-4" /> Course effectuée
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                    <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                    <p className="text-xs text-amber-700">
+                      Disponible après le {new Date(booking.scheduled_at).toLocaleString('fr-FR', {
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                )
               )}
               {(booking.status === 'confirmed' || booking.status === 'in_progress') && (
                 <button

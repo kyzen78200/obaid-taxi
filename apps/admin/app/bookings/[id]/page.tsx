@@ -133,6 +133,21 @@ export default async function BookingDetailPage({
 
   if (!booking) notFound()
 
+  // Signed URL for attestation (private bucket)
+  let attestationSignedUrl: string | null = null
+  const rawAttestationUrl = (booking as any).attestation_url as string | null
+  if (rawAttestationUrl) {
+    const pathMatch = rawAttestationUrl.match(/\/attestations\/(.+)$/)
+    if (pathMatch) {
+      const { data: signed } = await supabase.storage
+        .from('attestations')
+        .createSignedUrl(decodeURIComponent(pathMatch[1]), 3600)
+      attestationSignedUrl = signed?.signedUrl ?? rawAttestationUrl
+    } else {
+      attestationSignedUrl = rawAttestationUrl
+    }
+  }
+
   const { data: history } = await supabase
     .from('booking_status_history')
     .select('*')
@@ -164,7 +179,8 @@ export default async function BookingDetailPage({
   const canConfirm   = booking.status === 'pending'
   const canRefuse    = booking.status === 'pending'
   const canRevertPending = booking.status === 'confirmed'
-  const canComplete  = booking.status === 'confirmed' || booking.status === 'in_progress'
+  const scheduledPast  = new Date(booking.scheduled_at) <= new Date()
+  const canComplete  = (booking.status === 'confirmed' || booking.status === 'in_progress') && scheduledPast
   const canNoShow    = booking.status === 'confirmed' || booking.status === 'in_progress'
   const canCancel    = booking.status === 'confirmed'
   const canApproveCancelRequest = booking.status === 'cancellation_requested'
@@ -508,17 +524,18 @@ export default async function BookingDetailPage({
             </div>
 
             {/* Attestation PDF */}
-            {(booking as any).attestation_url && (
+            {attestationSignedUrl && (
               <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-purple-400">
                 <h2 className="font-semibold text-gray-900 mb-2 text-base flex items-center gap-2"><Cross className="w-4 h-4 text-purple-600" /> Attestation conventionnée</h2>
                 <a
-                  href={(booking as any).attestation_url}
+                  href={attestationSignedUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900 font-medium bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors"
                 >
                   <FileText className="w-4 h-4" /> Télécharger l'attestation PDF
                 </a>
+                <p className="text-xs text-gray-400 mt-2">Lien valide 1 heure — rechargez la page si expiré.</p>
               </div>
             )}
 
@@ -584,6 +601,14 @@ export default async function BookingDetailPage({
                       <Star className="w-4 h-4" /> Marquer comme effectuée
                     </button>
                   </form>
+                )}
+                {(booking.status === 'confirmed' || booking.status === 'in_progress') && !scheduledPast && (
+                  <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                    <p className="text-xs text-amber-700">
+                      Course prévue le {format(new Date(booking.scheduled_at), "d MMM 'à' HH'h'mm", { locale: fr })} — disponible après la prise en charge.
+                    </p>
+                  </div>
                 )}
                 {canNoShow && (
                   <form action={noShowAction}>
