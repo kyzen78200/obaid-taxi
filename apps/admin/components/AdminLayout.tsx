@@ -1,12 +1,13 @@
 'use client'
 
+import { type ReactNode } from 'react'
 import Sidebar from './Sidebar'
 import MobileHeader from './MobileHeader'
 import { SidebarProvider } from './SidebarContext'
 import ErrorBoundary from './ErrorBoundary'
 import PushSubscriber from './PushSubscriber'
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider>
       <PushSubscriber />
