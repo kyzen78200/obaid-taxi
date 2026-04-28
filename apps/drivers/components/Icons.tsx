@@ -1,9 +1,13 @@
 // components/Icons.tsx
-import type { SVGProps } from 'react'
+type IconProps = {
+  className?: string
+  onClick?: React.MouseEventHandler<SVGSVGElement>
+  style?: React.CSSProperties
+  'aria-label'?: string
+  'aria-hidden'?: boolean | 'true' | 'false'
+}
 
-type IconProps = SVGProps<SVGSVGElement> & { className?: string }
-
-const defaults: IconProps = { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
+const defaults = { xmlns: 'http://www.w3.org/2000/svg', fill: 'none', viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
 
 export function Car({ className, ...p }: IconProps) {
   return <svg {...defaults} className={className} {...p}><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1l2-3h10l2 3h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg>

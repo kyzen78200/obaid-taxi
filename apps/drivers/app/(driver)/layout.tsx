@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
@@ -8,7 +8,7 @@ import DarkModeToggle from '@/components/DarkModeToggle'
 import PushSubscriber from '@/components/PushSubscriber'
 import { Car, Search, Calendar, Settings } from '@/components/Icons'
 
-export default function DriverLayout({ children }: { children: React.ReactNode }) {
+export default function DriverLayout({ children }: { children: ReactNode }) {
   const supabase = createClient()
   const router = useRouter()
   const pathname = usePathname()
