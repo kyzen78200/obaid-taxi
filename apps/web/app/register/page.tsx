@@ -30,7 +30,7 @@ export default function RegisterPage() {
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: { data: { full_name: fullName, phone: phone.trim() } },
     })
 
     if (signUpError || !data.user) {
@@ -47,7 +47,7 @@ export default function RegisterPage() {
       role: 'client',
     })
 
-    router.push('/history')
+    router.push('/')
     router.refresh()
   }
 
