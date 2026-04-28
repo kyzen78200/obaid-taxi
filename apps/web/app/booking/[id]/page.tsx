@@ -9,7 +9,11 @@ import Link from 'next/link'
 interface Booking {
   id: string
   pickup_address: string
+  pickup_lat: number | null
+  pickup_lng: number | null
   dropoff_address: string
+  dropoff_lat: number | null
+  dropoff_lng: number | null
   scheduled_at: string
   trip_type: string
   status: string
@@ -129,7 +133,7 @@ export default function BookingStatusPage() {
   async function loadBooking() {
     const { data, error } = await supabase
       .from('bookings')
-      .select('id, pickup_address, dropoff_address, scheduled_at, trip_type, status, estimated_min, estimated_max, base_price, distance_km, duration_min, refusal_comment, cancellation_reason, notes, drivers(first_name, last_name, phone)')
+      .select('id, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, scheduled_at, trip_type, status, estimated_min, estimated_max, base_price, distance_km, duration_min, refusal_comment, cancellation_reason, notes, drivers(first_name, last_name, phone)')
       .eq('id', params.id)
       .single()
 
@@ -236,7 +240,15 @@ export default function BookingStatusPage() {
         )}
 
         {/* Trajet */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          {booking.pickup_lat && booking.dropoff_lat && (
+            <img
+              src={`https://maps.googleapis.com/maps/api/staticmap?size=600x180&maptype=roadmap&markers=color:blue%7Clabel:A%7C${booking.pickup_lat},${booking.pickup_lng}&markers=color:green%7Clabel:B%7C${booking.dropoff_lat},${booking.dropoff_lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
+              alt="Carte du trajet"
+              className="w-full h-40 object-cover"
+            />
+          )}
+          <div className="p-5 space-y-3">
           <h2 className="text-sm font-semibold text-gray-900">Votre trajet</h2>
           <div className="space-y-2 text-sm">
             <div className="flex gap-3">
@@ -291,6 +303,7 @@ export default function BookingStatusPage() {
               <p className="text-sm text-gray-700">{booking.notes}</p>
             </div>
           )}
+          </div>
         </div>
 
         {booking.status === 'pending' && (

@@ -54,14 +54,23 @@ export default function EstimatePage() {
           <p className="text-xs text-gray-400">Prix final confirmé par le gestionnaire</p>
 
           <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <p className="text-xs text-gray-400 font-medium mb-0.5">Tarif appliqué</p>
-              <p className="text-gray-700">{TARIFF_LABELS[session.tariff_code] ?? `Tarif ${session.tariff_code}`}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 font-medium mb-0.5">Distance estimée</p>
-              <p className="text-gray-700">{session.distance_km} km — {session.duration_min} min</p>
-            </div>
+            {session.forfait_name ? (
+              <div className="col-span-2">
+                <p className="text-xs text-gray-400 font-medium mb-0.5">Forfait</p>
+                <p className="text-gray-700">{session.forfait_name}</p>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <p className="text-xs text-gray-400 font-medium mb-0.5">Tarif appliqué</p>
+                  <p className="text-gray-700">{TARIFF_LABELS[session.tariff_code] ?? `Tarif ${session.tariff_code}`}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 font-medium mb-0.5">Distance estimée</p>
+                  <p className="text-gray-700">{session.distance_km} km — {session.duration_min} min</p>
+                </div>
+              </>
+            )}
             <div>
               <p className="text-xs text-gray-400 font-medium mb-0.5">Type de course</p>
               <p className="text-gray-700">{session.trip_type === 'round_trip' ? 'Aller-retour' : 'Aller simple'}</p>
@@ -76,7 +85,16 @@ export default function EstimatePage() {
         </div>
 
         {/* Trajet */}
-        <div className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+          {/* Map */}
+          {session.pickup_lat && session.dropoff_lat && (
+            <img
+              src={`https://maps.googleapis.com/maps/api/staticmap?size=600x180&maptype=roadmap&markers=color:blue%7Clabel:A%7C${session.pickup_lat},${session.pickup_lng}&markers=color:green%7Clabel:B%7C${session.dropoff_lat},${session.dropoff_lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
+              alt="Carte du trajet"
+              className="w-full h-40 object-cover"
+            />
+          )}
+          <div className="p-5 space-y-3">
           <h2 className="text-sm font-semibold text-gray-900">Votre trajet</h2>
 
           <div className="space-y-2">
@@ -106,6 +124,7 @@ export default function EstimatePage() {
                 </p>
               </div>
             </div>
+          </div>
           </div>
         </div>
 

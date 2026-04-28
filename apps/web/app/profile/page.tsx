@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 
+interface LoyaltyTx {
+  id: string
+  type: 'earned' | 'spent'
+  points: number
+  bookings?: { pickup_address: string; dropoff_address: string } | null
+}
+
 export default function ProfilePage() {
   const router = useRouter()
   const supabase = createClient()
@@ -12,6 +19,8 @@ export default function ProfilePage() {
   const [user, setUser] = useState<any>(null)
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number>(0)
+  const [loyaltyTxs, setLoyaltyTxs] = useState<LoyaltyTx[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -23,11 +32,21 @@ export default function ProfilePage() {
       if (!user) { router.push('/login'); return }
       setUser(user)
 
-      const { data } = await supabase.from('profiles').select('full_name, phone').eq('id', user.id).single()
+      const { data } = await supabase.from('profiles').select('full_name, phone, loyalty_points').eq('id', user.id).single()
       if (data) {
         setFullName(data.full_name ?? '')
         setPhone(data.phone ?? '')
+        setLoyaltyPoints(data.loyalty_points ?? 0)
       }
+
+      const { data: txs } = await supabase
+        .from('loyalty_transactions')
+        .select('id, type, points, bookings(pickup_address, dropoff_address)')
+        .eq('client_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5)
+      if (txs) setLoyaltyTxs(txs as LoyaltyTx[])
+
       setLoading(false)
     }
     load()
@@ -74,9 +93,42 @@ export default function ProfilePage() {
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
 
+        {/* Avatar */}
+        <div className="flex flex-col items-center py-4">
+          <div className="w-16 h-16 rounded-full bg-blue-700 flex items-center justify-center mb-3">
+            <span className="text-2xl font-bold text-white">
+              {fullName ? fullName.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() ?? '?'}
+            </span>
+          </div>
+          {fullName && <p className="text-base font-semibold text-gray-900">{fullName}</p>}
+          <p className="text-sm text-gray-500">{user?.email}</p>
+        </div>
+
+        {/* Points fidélité */}
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-sm font-semibold text-amber-800">Points fidélité</h2>
+            <span className="text-lg font-bold text-blue-700">{loyaltyPoints} pts</span>
+          </div>
+          <p className="text-xs text-amber-600 mb-3">1 point par km effectué · Points crédités après chaque course</p>
+          {loyaltyTxs.length > 0 && (
+            <div className="space-y-2 border-t border-amber-200 pt-3">
+              {loyaltyTxs.map(tx => (
+                <div key={tx.id} className="flex items-center justify-between">
+                  <p className="text-xs text-gray-600 truncate flex-1 mr-2">
+                    {tx.bookings?.pickup_address?.split(',')[0]} → {tx.bookings?.dropoff_address?.split(',')[0]}
+                  </p>
+                  <span className={`text-xs font-semibold ${tx.type === 'earned' ? 'text-green-600' : 'text-red-500'}`}>
+                    {tx.type === 'earned' ? '+' : '-'}{tx.points} pts
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="bg-white rounded-2xl shadow-sm p-5">
-          <h2 className="text-sm font-semibold text-gray-900 mb-1">Compte</h2>
-          <p className="text-sm text-gray-500 mb-4">{user?.email}</p>
+          <h2 className="text-sm font-semibold text-gray-900 mb-4">Modifier mon profil</h2>
 
           <form onSubmit={handleSave} className="space-y-4">
             <div>
