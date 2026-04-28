@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { Inbox, XCircle, AlertTriangle, Bell, User, Clock } from '@/components/Icons'
@@ -15,7 +15,7 @@ type AdminNotif = {
   created_at: string
 }
 
-const TYPE_ICON_MAP: Record<string, React.ReactNode> = {
+const TYPE_ICON_MAP: Record<string, ReactNode> = {
   new_booking: <Inbox className="w-5 h-5 text-blue-600" />,
   booking_cancelled: <XCircle className="w-5 h-5 text-red-500" />,
   unassigned_urgent: <AlertTriangle className="w-5 h-5 text-amber-500" />,

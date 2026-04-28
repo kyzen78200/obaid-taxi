@@ -1,13 +1,13 @@
 'use client'
 
-import { createContext, useContext, useState } from 'react'
+import { type ReactNode, createContext, useContext, useState } from 'react'
 
 const SidebarContext = createContext<{
   open: boolean
   setOpen: (v: boolean) => void
 }>({ open: false, setOpen: () => {} })
 
-export function SidebarProvider({ children }: { children: React.ReactNode }) {
+export function SidebarProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
   return (
     <SidebarContext.Provider value={{ open, setOpen }}>

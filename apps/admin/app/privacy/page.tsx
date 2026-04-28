@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité — O Taxi',
@@ -200,7 +201,7 @@ export default function PrivacyPage() {
   )
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section style={{ marginBottom: 36 }}>
       <h2 style={{
