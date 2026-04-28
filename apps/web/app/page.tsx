@@ -5,14 +5,25 @@ import { useRouter } from 'next/navigation'
 import { calculateFare, getTariffCode } from '@obaid-taxi/shared'
 import { getRouteInfo } from '@/lib/google-maps'
 import { saveBookingSession } from '@/lib/booking-session'
-import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+import Header from '@/components/Header'
 
 declare global {
   interface Window { google: any }
 }
 
+interface FarePackage {
+  id: string
+  name: string
+  type: 'gare' | 'aeroport' | string
+  lat: number
+  lng: number
+  base_price: number
+}
+
 export default function BookingPage() {
   const router = useRouter()
+  const supabase = createClient()
 
   const [pickup, setPickup] = useState('')
   const [pickupCoords, setPickupCoords] = useState<{ lat: number; lng: number } | null>(null)
@@ -24,15 +35,25 @@ export default function BookingPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Forfait
+  const [forfaitMode, setForfaitMode] = useState(false)
+  const [forfaitDirection, setForfaitDirection] = useState<'to' | 'from'>('to')
+  const [farePackages, setFarePackages] = useState<FarePackage[]>([])
+  const [selectedPackage, setSelectedPackage] = useState<FarePackage | null>(null)
+
   const pickupRef = useRef<HTMLInputElement>(null)
   const dropoffRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    supabase.from('fare_packages').select('id, name, type, lat, lng, base_price').eq('active', true)
+      .then(({ data }) => { if (data) setFarePackages(data as FarePackage[]) })
+  }, [])
 
   useEffect(() => {
     if (!window.google) return
     initAutocomplete()
   }, [])
 
-  // Wait for Google Maps to load if not ready yet
   useEffect(() => {
     const interval = setInterval(() => {
       if (window.google) { clearInterval(interval); initAutocomplete() }
@@ -71,21 +92,50 @@ export default function BookingPage() {
     setError(null)
 
     if (!pickup || !pickupCoords) { setError('Sélectionnez une adresse de départ dans les suggestions.'); return }
-    if (!dropoff || !dropoffCoords) { setError("Sélectionnez une adresse d'arrivée dans les suggestions."); return }
     if (!scheduledAt) { setError('Indiquez la date et l\'heure de la course.'); return }
 
-    setLoading(true)
+    if (forfaitMode) {
+      if (!selectedPackage) { setError('Sélectionnez une destination.'); return }
+      setLoading(true)
 
+      const destAddress = selectedPackage.name
+      const destCoords = { lat: selectedPackage.lat, lng: selectedPackage.lng }
+      const origin = forfaitDirection === 'to' ? pickup : destAddress
+      const destination = forfaitDirection === 'to' ? destAddress : pickup
+      const originCoords = forfaitDirection === 'to' ? pickupCoords : destCoords
+      const destCoordsFinal = forfaitDirection === 'to' ? destCoords : pickupCoords
+
+      saveBookingSession({
+        pickup_address: origin,
+        pickup_lat: originCoords.lat,
+        pickup_lng: originCoords.lng,
+        dropoff_address: destination,
+        dropoff_lat: (destCoordsFinal as any).lat,
+        dropoff_lng: (destCoordsFinal as any).lng,
+        scheduled_at: scheduledAt,
+        trip_type: tripType,
+        is_conventional: isConventional,
+        distance_km: 0,
+        duration_min: 0,
+        tariff_code: 'F',
+        base_price: selectedPackage.base_price,
+        estimated_min: selectedPackage.base_price,
+        estimated_max: selectedPackage.base_price,
+        forfait_id: selectedPackage.id,
+        forfait_name: selectedPackage.name,
+      })
+      router.push('/estimate')
+      return
+    }
+
+    if (!dropoff || !dropoffCoords) { setError("Sélectionnez une adresse d'arrivée dans les suggestions."); return }
+
+    setLoading(true)
     const routeInfo = await getRouteInfo(pickup, dropoff)
     if (!routeInfo) { setError('Impossible de calculer l\'itinéraire. Vérifiez les adresses.'); setLoading(false); return }
 
     const departureTime = new Date(scheduledAt)
-    const estimate = calculateFare({
-      distanceKm: routeInfo.distance_km,
-      durationMin: routeInfo.duration_min,
-      departureTime,
-      tripType,
-    })
+    const estimate = calculateFare({ distanceKm: routeInfo.distance_km, durationMin: routeInfo.duration_min, departureTime, tripType })
 
     saveBookingSession({
       pickup_address: pickup,
@@ -103,27 +153,20 @@ export default function BookingPage() {
       base_price: estimate.base_price,
       estimated_min: estimate.estimated_min,
       estimated_max: estimate.estimated_max,
+      forfait_id: null,
+      forfait_name: null,
     })
 
     router.push('/estimate')
   }
 
-  // Min datetime = now + 30 min
   const minDate = new Date(Date.now() + 30 * 60 * 1000).toISOString().slice(0, 16)
+  const gares = farePackages.filter(p => p.type === 'gare')
+  const aeroports = farePackages.filter(p => p.type === 'aeroport')
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <img src="/icon-192.png" className="w-8 h-8 rounded-lg" alt="O Taxi" />
-          <span className="font-bold text-gray-900">O Taxi</span>
-        </div>
-        <div className="flex items-center gap-4 text-sm">
-          <Link href="/history" className="text-gray-600 hover:text-gray-900 transition-colors">Mes réservations</Link>
-          <Link href="/login" className="text-blue-700 font-medium hover:text-blue-800 transition-colors">Connexion</Link>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero */}
       <div className="bg-blue-700 text-white px-6 py-10 text-center">
@@ -136,11 +179,27 @@ export default function BookingPage() {
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
 
+            {/* Toggle forfait */}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => { setForfaitMode(false); setSelectedPackage(null) }}
+                className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors border ${!forfaitMode ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400'}`}
+              >
+                Course standard
+              </button>
+              <button
+                type="button"
+                onClick={() => setForfaitMode(true)}
+                className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors border ${forfaitMode ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400'}`}
+              >
+                🚉 Gare / Aéroport
+              </button>
+            </div>
+
             {/* Pickup */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Adresse de départ
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Adresse de départ</label>
               <input
                 ref={pickupRef}
                 type="text"
@@ -152,27 +211,78 @@ export default function BookingPage() {
               />
             </div>
 
-            {/* Dropoff */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Adresse d'arrivée
-              </label>
-              <input
-                ref={dropoffRef}
-                type="text"
-                value={dropoff}
-                onChange={e => { setDropoff(e.target.value); setDropoffCoords(null) }}
-                placeholder="Gare de Paris-Saint-Lazare"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                autoComplete="off"
-              />
-            </div>
+            {/* Forfait mode */}
+            {forfaitMode ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Direction</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([
+                      { value: 'to', label: 'Aller vers' },
+                      { value: 'from', label: 'Venir de' },
+                    ] as const).map(opt => (
+                      <button key={opt.value} type="button" onClick={() => setForfaitDirection(opt.value)}
+                        className={`py-2.5 rounded-xl text-sm font-medium transition-colors border ${forfaitDirection === opt.value ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400'}`}>
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
+                  {farePackages.length === 0 ? (
+                    <p className="text-sm text-gray-400">Chargement...</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {gares.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-400 mb-1">🚉 Gares</p>
+                          {gares.map(pkg => (
+                            <button key={pkg.id} type="button"
+                              onClick={() => setSelectedPackage(pkg)}
+                              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm border mb-1 transition-colors ${selectedPackage?.id === pkg.id ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300'}`}>
+                              <span>{pkg.name}</span>
+                              <span className="font-semibold">{pkg.base_price} €</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {aeroports.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-gray-400 mb-1">✈️ Aéroports</p>
+                          {aeroports.map(pkg => (
+                            <button key={pkg.id} type="button"
+                              onClick={() => setSelectedPackage(pkg)}
+                              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm border mb-1 transition-colors ${selectedPackage?.id === pkg.id ? 'bg-blue-50 border-blue-400 text-blue-700' : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300'}`}>
+                              <span>{pkg.name}</span>
+                              <span className="font-semibold">{pkg.base_price} €</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Adresse d'arrivée</label>
+                <input
+                  ref={dropoffRef}
+                  type="text"
+                  value={dropoff}
+                  onChange={e => { setDropoff(e.target.value); setDropoffCoords(null) }}
+                  placeholder="Gare de Paris-Saint-Lazare"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  autoComplete="off"
+                />
+              </div>
+            )}
 
             {/* Date + time */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Date et heure de départ
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Date et heure de départ</label>
               <input
                 type="datetime-local"
                 value={scheduledAt}
@@ -182,29 +292,23 @@ export default function BookingPage() {
               />
             </div>
 
-            {/* Trip type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Type de course</label>
-              <div className="grid grid-cols-2 gap-2">
-                {([
-                  { value: 'one_way', label: 'Aller simple' },
-                  { value: 'round_trip', label: 'Aller-retour' },
-                ] as const).map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setTripType(opt.value)}
-                    className={`py-2.5 rounded-xl text-sm font-medium transition-colors border ${
-                      tripType === opt.value
-                        ? 'bg-blue-600 border-blue-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+            {/* Trip type (masqué en mode forfait) */}
+            {!forfaitMode && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Type de course</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { value: 'one_way', label: 'Aller simple' },
+                    { value: 'round_trip', label: 'Aller-retour' },
+                  ] as const).map(opt => (
+                    <button key={opt.value} type="button" onClick={() => setTripType(opt.value)}
+                      className={`py-2.5 rounded-xl text-sm font-medium transition-colors border ${tripType === opt.value ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400'}`}>
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Conventionné */}
             <label className="flex items-center gap-3 py-2 cursor-pointer select-none">
@@ -217,17 +321,22 @@ export default function BookingPage() {
               <span className="text-sm text-gray-700">Course conventionnée (transport médical CPAM)</span>
             </label>
 
+            {isConventional && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+                <p className="text-xs text-blue-700">
+                  Vous pourrez joindre votre attestation de transport (PDF) à l'étape suivante.
+                </p>
+              </div>
+            )}
+
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-700 hover:bg-blue-800 disabled:bg-blue-400 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm"
-            >
+            <button type="submit" disabled={loading}
+              className="w-full bg-blue-700 hover:bg-blue-800 disabled:bg-blue-400 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm">
               {loading ? 'Calcul en cours...' : 'Obtenir une estimation →'}
             </button>
           </form>

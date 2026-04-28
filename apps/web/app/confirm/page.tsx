@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { loadBookingSession, clearBookingSession, type BookingSession } from '@/lib/booking-session'
@@ -15,11 +15,14 @@ export default function ConfirmPage() {
   const [user, setUser] = useState<any>(null)
   const [profile, setProfile] = useState<{ full_name: string; phone: string } | null>(null)
 
-  // Guest form
   const [guestName, setGuestName] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
   const [notes, setNotes] = useState('')
+
+  // PDF conventionné
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -51,6 +54,11 @@ export default function ConfirmPage() {
       if (!guestEmail.trim()) { setError('Votre email est obligatoire.'); return }
     }
 
+    if (session.is_conventional && pdfFile && pdfFile.size > 5 * 1024 * 1024) {
+      setError('Le fichier PDF ne doit pas dépasser 5 Mo.')
+      return
+    }
+
     setLoading(true)
 
     const bookingPayload: any = {
@@ -73,6 +81,7 @@ export default function ConfirmPage() {
       status: 'pending',
     }
 
+    if (session.forfait_id) bookingPayload.forfait_id = session.forfait_id
     if (user) {
       bookingPayload.client_id = user.id
     } else {
@@ -93,7 +102,21 @@ export default function ConfirmPage() {
       return
     }
 
-    // Save to guest history if not logged in
+    // Upload PDF si conventionné
+    if (session.is_conventional && pdfFile) {
+      const ext = pdfFile.name.split('.').pop()
+      const path = `${data.id}/${Date.now()}.${ext}`
+      const { data: uploadData } = await supabase.storage
+        .from('attestations')
+        .upload(path, pdfFile, { contentType: pdfFile.type })
+
+      if (uploadData) {
+        const { data: urlData } = supabase.storage.from('attestations').getPublicUrl(uploadData.path)
+        await supabase.from('bookings').update({ attestation_url: urlData.publicUrl }).eq('id', data.id)
+      }
+    }
+
+    // Historique invité
     if (!user) {
       saveGuestBooking({
         id: data.id,
@@ -107,7 +130,7 @@ export default function ConfirmPage() {
       })
     }
 
-    // Notify admin
+    // Notifier l'admin
     fetch(`${process.env.NEXT_PUBLIC_ADMIN_URL ?? 'https://admin.otaxi.fr'}/api/notify/booking-created`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -137,7 +160,7 @@ export default function ConfirmPage() {
 
       <div className="max-w-lg mx-auto px-4 py-6 space-y-4">
 
-        {/* Résumé */}
+        {/* Récapitulatif */}
         <div className="bg-white rounded-2xl shadow-sm p-5 space-y-3">
           <h2 className="text-sm font-semibold text-gray-900">Récapitulatif</h2>
           <div className="space-y-2 text-sm">
@@ -170,18 +193,24 @@ export default function ConfirmPage() {
             <div>
               <p className="text-gray-400">Estimation</p>
               <p className="font-medium text-blue-700">
-                {session.estimated_min === session.estimated_max
-                  ? `${session.estimated_min} €`
-                  : `${session.estimated_min}–${session.estimated_max} €`}
+                {session.forfait_name
+                  ? `${session.estimated_min} € (forfait)`
+                  : session.estimated_min === session.estimated_max
+                    ? `${session.estimated_min} €`
+                    : `${session.estimated_min}–${session.estimated_max} €`}
               </p>
             </div>
           </div>
+          {session.is_conventional && (
+            <div className="pt-2 border-t border-gray-100">
+              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Course conventionnée CPAM</span>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleConfirm} className="space-y-4">
 
           {user ? (
-            /* Logged in — show profile */
             <div className="bg-white rounded-2xl shadow-sm p-5">
               <h2 className="text-sm font-semibold text-gray-900 mb-3">Vos coordonnées</h2>
               <div className="text-sm text-gray-700 space-y-1">
@@ -192,7 +221,6 @@ export default function ConfirmPage() {
               <Link href="/profile" className="text-xs text-blue-700 mt-2 block hover:underline">Modifier mon profil</Link>
             </div>
           ) : (
-            /* Guest — collect info */
             <div className="bg-white rounded-2xl shadow-sm p-5">
               <h2 className="text-sm font-semibold text-gray-900 mb-1">Vos coordonnées</h2>
               <p className="text-xs text-gray-400 mb-4">
@@ -202,42 +230,59 @@ export default function ConfirmPage() {
               <div className="space-y-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Nom et prénom *</label>
-                  <input
-                    type="text"
-                    required
-                    value={guestName}
-                    onChange={e => setGuestName(e.target.value)}
+                  <input type="text" required value={guestName} onChange={e => setGuestName(e.target.value)}
                     placeholder="Jean Dupont"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Téléphone *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={guestPhone}
-                    onChange={e => setGuestPhone(e.target.value)}
+                  <input type="tel" required value={guestPhone} onChange={e => setGuestPhone(e.target.value)}
                     placeholder="06 12 34 56 78"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Email *</label>
-                  <input
-                    type="email"
-                    required
-                    value={guestEmail}
-                    onChange={e => setGuestEmail(e.target.value)}
+                  <input type="email" required value={guestEmail} onChange={e => setGuestEmail(e.target.value)}
                     placeholder="jean@exemple.fr"
-                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                    className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
             </div>
           )}
 
-          {/* Notes optionnelles */}
+          {/* Attestation PDF (conventionné) */}
+          {session.is_conventional && (
+            <div className="bg-white rounded-2xl shadow-sm p-5">
+              <h2 className="text-sm font-semibold text-gray-900 mb-1">Attestation de transport</h2>
+              <p className="text-xs text-gray-400 mb-3">Joignez votre bon de transport CPAM (PDF, max 5 Mo) — optionnel</p>
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".pdf,application/pdf"
+                onChange={e => setPdfFile(e.target.files?.[0] ?? null)}
+                className="hidden"
+              />
+              {pdfFile ? (
+                <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+                  <div>
+                    <p className="text-sm text-blue-700 font-medium truncate max-w-[200px]">{pdfFile.name}</p>
+                    <p className="text-xs text-blue-500">{(pdfFile.size / 1024).toFixed(0)} Ko</p>
+                  </div>
+                  <button type="button" onClick={() => setPdfFile(null)}
+                    className="text-xs text-red-500 hover:text-red-700 font-medium">
+                    Supprimer
+                  </button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => fileRef.current?.click()}
+                  className="w-full border-2 border-dashed border-gray-300 rounded-xl py-4 text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors">
+                  + Ajouter un fichier PDF
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Notes */}
           <div className="bg-white rounded-2xl shadow-sm p-5">
             <label className="block text-sm font-medium text-gray-900 mb-2">
               Notes pour le chauffeur <span className="text-gray-400 font-normal">(optionnel)</span>
@@ -257,11 +302,8 @@ export default function ConfirmPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-700 hover:bg-blue-800 disabled:bg-blue-400 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm"
-          >
+          <button type="submit" disabled={loading}
+            className="w-full bg-blue-700 hover:bg-blue-800 disabled:bg-blue-400 text-white font-semibold py-3.5 rounded-xl transition-colors text-sm">
             {loading ? 'Envoi en cours...' : 'Envoyer la demande de réservation'}
           </button>
 

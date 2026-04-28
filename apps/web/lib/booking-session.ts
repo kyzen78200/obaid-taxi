@@ -7,7 +7,7 @@ export interface BookingSession {
   dropoff_address: string
   dropoff_lat: number
   dropoff_lng: number
-  scheduled_at: string       // ISO string
+  scheduled_at: string
   trip_type: 'one_way' | 'round_trip'
   is_conventional: boolean
   distance_km: number
@@ -16,6 +16,9 @@ export interface BookingSession {
   base_price: number
   estimated_min: number
   estimated_max: number
+  // Forfait
+  forfait_id?: string | null
+  forfait_name?: string | null
 }
 
 const KEY = 'otaxi-booking-session'
