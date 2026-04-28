@@ -106,11 +106,14 @@ export default function ConfirmPage() {
     if (session.is_conventional && pdfFile) {
       const ext = pdfFile.name.split('.').pop()
       const path = `${data.id}/${Date.now()}.${ext}`
-      const { data: uploadData } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from('attestations')
         .upload(path, pdfFile, { contentType: pdfFile.type })
 
-      if (uploadData) {
+      if (uploadError) {
+        // Booking created but PDF failed — proceed but warn on status page
+        console.error('Attestation upload failed:', uploadError.message)
+      } else if (uploadData) {
         const { data: urlData } = supabase.storage.from('attestations').getPublicUrl(uploadData.path)
         await supabase.from('bookings').update({ attestation_url: urlData.publicUrl }).eq('id', data.id)
       }

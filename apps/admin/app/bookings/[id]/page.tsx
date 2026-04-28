@@ -367,6 +367,24 @@ export default async function BookingDetailPage({
     redirect(`/bookings/${params.id}`)
   }
 
+  const uploadAttestationAction = async (formData: FormData) => {
+    'use server'
+    const supabase = createClient()
+    const file = formData.get('attestation') as File | null
+    if (!file || file.size === 0) return
+    const path = `${params.id}/${Date.now()}.pdf`
+    const arrayBuffer = await file.arrayBuffer()
+    const { data: uploadData, error } = await supabase.storage
+      .from('attestations')
+      .upload(path, Buffer.from(arrayBuffer), { contentType: 'application/pdf', upsert: true })
+    if (!error && uploadData) {
+      const { data: urlData } = supabase.storage.from('attestations').getPublicUrl(uploadData.path)
+      await supabase.from('bookings').update({ attestation_url: urlData.publicUrl }).eq('id', params.id)
+    }
+    revalidatePath(`/bookings/${params.id}`)
+    redirect(`/bookings/${params.id}`)
+  }
+
   const tariffLabels: Record<string, string> = {
     A: 'Tarif A — Jour (6h–21h)',
     B: 'Tarif B — Nuit / WE / Férié',
@@ -524,18 +542,46 @@ export default async function BookingDetailPage({
             </div>
 
             {/* Attestation PDF */}
-            {attestationSignedUrl && (
+            {booking.is_conventional && (
               <div className="bg-white rounded-xl shadow-sm p-6 border-l-4 border-purple-400">
-                <h2 className="font-semibold text-gray-900 mb-2 text-base flex items-center gap-2"><Cross className="w-4 h-4 text-purple-600" /> Attestation conventionnée</h2>
-                <a
-                  href={attestationSignedUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900 font-medium bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors"
-                >
-                  <FileText className="w-4 h-4" /> Télécharger l'attestation PDF
-                </a>
-                <p className="text-xs text-gray-400 mt-2">Lien valide 1 heure — rechargez la page si expiré.</p>
+                <h2 className="font-semibold text-gray-900 mb-3 text-base flex items-center gap-2">
+                  <Cross className="w-4 h-4 text-purple-600" /> Attestation conventionnée
+                </h2>
+                {attestationSignedUrl ? (
+                  <>
+                    <a
+                      href={attestationSignedUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-blue-700 hover:text-blue-900 font-medium bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition-colors"
+                    >
+                      <FileText className="w-4 h-4" /> Télécharger l'attestation PDF
+                    </a>
+                    <p className="text-xs text-gray-400 mt-2">Lien valide 1 heure — rechargez la page si expiré.</p>
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                      Aucune attestation jointe par le client.
+                    </p>
+                    <form action={uploadAttestationAction} className="flex items-center gap-2">
+                      <input
+                        type="file"
+                        name="attestation"
+                        accept=".pdf,application/pdf"
+                        required
+                        className="text-xs text-gray-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 cursor-pointer"
+                      />
+                      <button
+                        type="submit"
+                        className="shrink-0 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium py-1.5 px-3 rounded-lg transition-colors"
+                      >
+                        Joindre
+                      </button>
+                    </form>
+                  </div>
+                )}
               </div>
             )}
 

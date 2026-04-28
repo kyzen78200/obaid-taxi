@@ -246,20 +246,26 @@ export default function DriverBookingDetailPage() {
           </div>
         </div>
 
-        {attestationSignedUrl && (
+        {booking.is_conventional && (
           <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 flex items-center gap-3">
             <FileText className="w-5 h-5 text-purple-600 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-xs font-medium text-purple-700 mb-1">Attestation conventionnée</p>
-              <a
-                href={attestationSignedUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-purple-800 font-semibold hover:underline"
-              >
-                Télécharger l'attestation PDF
-              </a>
-              <p className="text-xs text-purple-400 mt-0.5">Lien valide 1 heure</p>
+              <p className="text-xs font-medium text-purple-700 mb-1">Course conventionnée CPAM</p>
+              {attestationSignedUrl ? (
+                <>
+                  <a
+                    href={attestationSignedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-purple-800 font-semibold hover:underline"
+                  >
+                    Télécharger l'attestation PDF
+                  </a>
+                  <p className="text-xs text-purple-400 mt-0.5">Lien valide 1 heure</p>
+                </>
+              ) : (
+                <p className="text-sm text-purple-600">Aucune attestation jointe — demander le bon au client.</p>
+              )}
             </div>
           </div>
         )}
