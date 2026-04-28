@@ -45,7 +45,7 @@ export default function ProfilePage() {
         .eq('client_id', user.id)
         .order('created_at', { ascending: false })
         .limit(5)
-      if (txs) setLoyaltyTxs(txs as LoyaltyTx[])
+      if (txs) setLoyaltyTxs(txs as unknown as LoyaltyTx[])
 
       setLoading(false)
     }
