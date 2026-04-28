@@ -82,7 +82,7 @@ export default function DriverSearchPage() {
       .from('bookings')
       .select('id, pickup_address, dropoff_address, scheduled_at, trip_type, is_conventional, distance_km, duration_min, base_price, estimated_min, estimated_max, notes, status')
       .eq('is_broadcast', true)
-      .eq('status', 'pending')
+      .in('status', ['pending', 'confirmed'])
       .is('driver_id', null)
       .order('scheduled_at', { ascending: true })
 
@@ -102,7 +102,7 @@ export default function DriverSearchPage() {
       .from('bookings')
       .update({ driver_id: driverId, is_broadcast: false, status: 'confirmed' })
       .eq('id', bookingId)
-      .eq('status', 'pending')
+      .in('status', ['pending', 'confirmed'])
       .is('driver_id', null)
       .select('id')
       .single()
