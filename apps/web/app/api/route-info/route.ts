@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const params = new URLSearchParams({
     origin,
     destination,
-    key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
+    key: process.env.GOOGLE_MAPS_SERVER_KEY ?? process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
   })
 
   const res = await fetch(
