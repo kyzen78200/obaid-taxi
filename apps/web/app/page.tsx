@@ -195,13 +195,20 @@ export default function BookingPage() {
         return
       }
 
-      // Forfait trouvé
+      // Forfait trouvé — tariff_code calculé depuis l'heure de départ (enum A/B/C/D)
+      const forfaitEstimate = calculateFare({
+        distanceKm: 0, durationMin: 0,
+        departureTime: new Date(scheduledAt),
+        tripType: 'one_way',
+        forfaitPrice: pkg.price,
+        forfaitName: selectedDest.name,
+      })
       saveBookingSession({
         pickup_address: pickupAddr, pickup_lat: originCoords.lat, pickup_lng: originCoords.lng,
         dropoff_address: dropoffAddr, dropoff_lat: dropoffCoordsFinal.lat, dropoff_lng: dropoffCoordsFinal.lng,
         scheduled_at: scheduledAt, trip_type: 'one_way', is_conventional: isConventional,
         distance_km: 0, duration_min: 0,
-        tariff_code: 'F', base_price: pkg.price,
+        tariff_code: forfaitEstimate.tariff_code, base_price: pkg.price,
         estimated_min: pkg.price, estimated_max: pkg.price,
         forfait_id: pkg.id, forfait_name: selectedDest.name,
       })
