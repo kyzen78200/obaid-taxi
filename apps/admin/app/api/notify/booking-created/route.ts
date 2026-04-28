@@ -13,16 +13,29 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 )
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
+}
+
 export async function POST(req: NextRequest) {
   try {
-    // Verify the caller is an authenticated mobile user
-    const { user, error: authError } = await requireBearerAuth(req)
-    if (authError) return authError
-
     const { bookingId } = await req.json()
     if (!bookingId) return NextResponse.json({ error: 'bookingId requis' }, { status: 400 })
 
-    // Verify the booking belongs to this user (or is a guest booking they just created)
+    // Auth optionnelle — vérifie la propriété seulement si un token est présent
+    const authHeader = req.headers.get('authorization')
+    let userId: string | null = null
+    if (authHeader?.startsWith('Bearer ')) {
+      const { user } = await requireBearerAuth(req)
+      userId = user?.id ?? null
+    }
+
     const { data: booking } = await supabaseAdmin
       .from('bookings')
       .select('*, profiles!client_id(full_name, email)')
@@ -31,8 +44,8 @@ export async function POST(req: NextRequest) {
 
     if (!booking) return NextResponse.json({ error: 'Course introuvable' }, { status: 404 })
 
-    // Ensure the booking belongs to the authenticated user
-    if (booking.client_id && booking.client_id !== user!.id) {
+    // Si token présent, vérifier la propriété
+    if (userId && booking.client_id && booking.client_id !== userId) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
 
@@ -89,8 +102,8 @@ export async function POST(req: NextRequest) {
       data: { bookingId, url: `/bookings/${bookingId}` },
     })
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true }, { headers: CORS_HEADERS })
   } catch {
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500, headers: CORS_HEADERS })
   }
 }
