@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #F9FAFB;
+  color: #111827;
+}
+
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+.dark .bg-gray-50 { background-color: #111827 !important; }
+.dark .bg-gray-100 { background-color: #1f2937 !important; }
+.dark .bg-white { background-color: #1f2937 !important; }
+.dark .bg-gray-800 { background-color: #0f172a !important; }
+
+.dark .text-gray-900 { color: #f9fafb !important; }
+.dark .text-gray-800 { color: #e5e7eb !important; }
+.dark .text-gray-700 { color: #d1d5db !important; }
+.dark .text-gray-600 { color: #9ca3af !important; }
+.dark .text-gray-500 { color: #6b7280 !important; }
+.dark .text-gray-400 { color: #4b5563 !important; }
+
+.dark .border-gray-50 { border-color: #1f2937 !important; }
+.dark .border-gray-100 { border-color: #374151 !important; }
+.dark .border-gray-200 { border-color: #374151 !important; }
+.dark .border-gray-300 { border-color: #4b5563 !important; }
+
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+.dark .hover\:bg-gray-50:hover { background-color: #374151 !important; }
+.dark .hover\:bg-gray-100:hover { background-color: #374151 !important; }
+.dark .hover\:bg-blue-50:hover { background-color: #1e3a5f !important; }
+
+.dark .bg-green-50 { background-color: #052e16 !important; }
+.dark .bg-blue-50 { background-color: #0c1a2e !important; }
+.dark .bg-red-50 { background-color: #2d0c0c !important; }
+.dark .bg-yellow-50 { background-color: #1c1a07 !important; }
+.dark .bg-amber-50 { background-color: #1c1a07 !important; }
+.dark .bg-orange-50 { background-color: #1c1007 !important; }
+.dark .bg-indigo-50 { background-color: #0d0f2b !important; }
+.dark .bg-purple-50 { background-color: #1a0d2b !important; }
+.dark .bg-gray-900 { background-color: #0f172a !important; }

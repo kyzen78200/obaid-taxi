@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #F9FAFB;
+  color: #111827;
+}
+
+/* Google Places Autocomplete dropdown */
+.pac-container { z-index: 99999 !important; pointer-events: auto !important; }

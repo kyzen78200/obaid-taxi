@@ -3,9 +3,9 @@ const nextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [
-        'localhost:3001',
-        'admin.otaxi.fr',
-        'obaid-taxi-admin.vercel.app',
+        'localhost:3000',
+        'otaxi.fr',
+        'www.otaxi.fr',
       ],
     },
   },

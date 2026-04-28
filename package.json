@@ -8,6 +8,8 @@
   "scripts": {
     "dev:mobile": "turbo run dev --filter=mobile",
     "dev:admin": "turbo run dev --filter=admin",
+    "dev:drivers": "turbo run dev --filter=drivers",
+    "dev:web": "turbo run dev --filter=web",
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",

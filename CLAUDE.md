@@ -74,7 +74,9 @@ Destinations fixes (gares, aéroports) avec prix forfaitaire depuis/vers des zon
 ```
 obaid-taxi/
 ├── apps/
-│   ├── admin/          # Next.js 14 — dashboard gestionnaire (Vercel → otaxi.fr)
+│   ├── admin/          # Next.js 14 — dashboard gestionnaire (Vercel → admin.otaxi.fr)
+│   ├── drivers/        # Next.js 14 — dashboard chauffeur (Vercel → drivers.otaxi.fr)
+│   ├── web/            # Next.js 14 — app web client (Vercel → otaxi.fr)
 │   └── mobile/         # Expo SDK 54 / React Native 0.81.5 — app client iOS + Android
 ├── packages/
 │   └── shared/         # Types TypeScript + logique tarifaire partagés
@@ -94,7 +96,9 @@ obaid-taxi/
 - **Resend** pour les emails transactionnels
 - **Web Push** (VAPID) pour les notifications admin
 - **Vercel Hobby** — cron limité à 1/jour → `"0 8 * * *"` dans `vercel.json`
-- URL prod : `https://otaxi.fr` — `/login` pour l'admin, `/driver-login` pour les chauffeurs
+- URL prod admin : `https://admin.otaxi.fr` — `/login` pour l'admin
+- URL prod drivers : `https://drivers.otaxi.fr` — `/login` pour les chauffeurs
+- URL prod web client : `https://otaxi.fr`
 
 ### Mobile (`apps/mobile`)
 - **Expo SDK 54** + **React Native 0.81.5** + **React 19.1.0** (ne pas downgrader)
@@ -201,6 +205,8 @@ app/api/
 ```bash
 # Développement
 npm run dev:admin           # Next.js admin sur :3001
+npm run dev:drivers         # Next.js drivers sur :3002
+npm run dev:web             # Next.js web client sur :3000
 npm run dev:mobile          # Expo (attention au conflit React en local)
 
 # Builds EAS (depuis apps/mobile/)
