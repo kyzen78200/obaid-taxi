@@ -5,6 +5,16 @@ import { sendEmail } from '@/lib/notify'
 import { createAdminNotification } from '@/lib/notify'
 import { rateLimit, getIp } from '@/lib/rate-limit'
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': 'https://drivers.otaxi.fr',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
+}
+
 export async function POST(req: NextRequest) {
   try {
     // 5 tentatives max par IP par heure
@@ -15,13 +25,13 @@ export async function POST(req: NextRequest) {
         { error: 'Trop de tentatives. Réessayez dans quelques minutes.' },
         {
           status: 429,
-          headers: { 'Retry-After': String(Math.ceil((retryAfterMs ?? 0) / 1000)) },
+          headers: { ...CORS_HEADERS, 'Retry-After': String(Math.ceil((retryAfterMs ?? 0) / 1000)) },
         },
       )
     }
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
     if (!serviceRoleKey) {
-      return NextResponse.json({ error: 'Configuration serveur manquante.' }, { status: 500 })
+      return NextResponse.json({ error: 'Configuration serveur manquante.' }, { status: 500, headers: CORS_HEADERS })
     }
 
     const supabaseAdmin = createClient(
@@ -33,11 +43,11 @@ export async function POST(req: NextRequest) {
     const { email, password, first_name, last_name, phone } = body
 
     if (!email || !password || !first_name || !last_name || !phone) {
-      return NextResponse.json({ error: 'Tous les champs sont requis.' }, { status: 400 })
+      return NextResponse.json({ error: 'Tous les champs sont requis.' }, { status: 400, headers: CORS_HEADERS })
     }
 
     if (password.length < 6) {
-      return NextResponse.json({ error: 'Le mot de passe doit contenir au moins 6 caractères.' }, { status: 400 })
+      return NextResponse.json({ error: 'Le mot de passe doit contenir au moins 6 caractères.' }, { status: 400, headers: CORS_HEADERS })
     }
 
     // Create auth user (email auto-confirmed, role = driver)
@@ -54,9 +64,9 @@ export async function POST(req: NextRequest) {
     if (authError) {
       const msg = authError.message.toLowerCase()
       if (msg.includes('already registered') || msg.includes('already been registered')) {
-        return NextResponse.json({ error: 'Un compte existe déjà avec cette adresse e-mail.' }, { status: 400 })
+        return NextResponse.json({ error: 'Un compte existe déjà avec cette adresse e-mail.' }, { status: 400, headers: CORS_HEADERS })
       }
-      return NextResponse.json({ error: authError.message }, { status: 400 })
+      return NextResponse.json({ error: authError.message }, { status: 400, headers: CORS_HEADERS })
     }
 
     // Create driver record with status: pending
@@ -71,7 +81,7 @@ export async function POST(req: NextRequest) {
     if (driverError) {
       // Rollback: delete auth user
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
-      return NextResponse.json({ error: 'Erreur lors de la création du compte.' }, { status: 500 })
+      return NextResponse.json({ error: 'Erreur lors de la création du compte.' }, { status: 500, headers: CORS_HEADERS })
     }
 
     // Email de bienvenue au chauffeur
@@ -89,8 +99,8 @@ export async function POST(req: NextRequest) {
       data: { driverUserId: authData.user.id },
     }).catch(() => {})
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true }, { headers: CORS_HEADERS })
   } catch {
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500, headers: CORS_HEADERS })
   }
 }
