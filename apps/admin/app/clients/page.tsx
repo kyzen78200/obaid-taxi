@@ -23,6 +23,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
   let profilesQuery = supabase
     .from('profiles')
     .select('id, full_name, phone, loyalty_points, created_at', { count: 'exact' })
+    .eq('role', 'client')
     .order('created_at', { ascending: false })
     .range(offset, offset + PAGE_SIZE - 1)
 
