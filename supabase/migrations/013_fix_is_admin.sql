@@ -1,18 +1,16 @@
 -- ═══════════════════════════════════════════════════════════════
--- 013 — Fix is_admin() : lire depuis profiles, pas le JWT
+-- 013 — Définir le rôle admin dans les métadonnées auth
 -- ═══════════════════════════════════════════════════════════════
 --
--- L'ancienne version lisait auth.jwt() ->> 'role' ou user_metadata.role.
--- Ces champs ne sont jamais remplis automatiquement depuis profiles.role.
--- Résultat : is_admin() retournait false pour tous les admins, bloquant
--- toutes les policies RLS basées sur cette fonction (drivers, bookings...).
+-- is_admin() lit auth.jwt() -> user_metadata -> role (approche JWT, plus
+-- performante). Pour qu'un compte soit reconnu admin, il faut injecter
+-- le claim dans auth.users.raw_user_meta_data.
 --
--- La nouvelle version interroge directement la table profiles.
--- SECURITY DEFINER permet de bypasser la RLS sur profiles.
+-- À exécuter pour chaque nouveau compte admin :
+--   UPDATE auth.users
+--   SET raw_user_meta_data = raw_user_meta_data || '{"role": "admin"}'::jsonb
+--   WHERE email = 'email_admin@exemple.fr';
 
-CREATE OR REPLACE FUNCTION is_admin()
-RETURNS boolean AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
-  );
-$$ LANGUAGE sql SECURITY DEFINER;
+UPDATE auth.users
+SET raw_user_meta_data = raw_user_meta_data || '{"role": "admin"}'::jsonb
+WHERE email = 'kyzen78200@gmail.com';
