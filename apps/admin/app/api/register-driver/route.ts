@@ -84,6 +84,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Erreur lors de la création du compte.' }, { status: 500, headers: CORS_HEADERS })
     }
 
+    // Sync phone to profile (trigger creates profile without phone)
+    await supabaseAdmin
+      .from('profiles')
+      .update({ phone: phone.trim() })
+      .eq('id', authData.user.id)
+
     // Email de bienvenue au chauffeur
     await sendEmail(
       email.trim().toLowerCase(),
