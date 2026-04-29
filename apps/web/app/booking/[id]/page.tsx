@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
@@ -25,6 +25,8 @@ interface Booking {
   refusal_comment: string | null
   cancellation_reason: string | null
   notes: string | null
+  is_conventional: boolean
+  attestation_url: string | null
   drivers?: { first_name: string; last_name: string; phone: string | null } | null
 }
 
@@ -99,6 +101,7 @@ function isTooLateToCancel(booking: Booking): boolean {
 export default function BookingStatusPage() {
   const params = useParams<{ id: string }>()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   const [booking, setBooking] = useState<Booking | null>(null)
@@ -111,6 +114,13 @@ export default function BookingStatusPage() {
   const [cancelReason, setCancelReason] = useState(CANCEL_REASONS[0])
   const [cancelOther, setCancelOther] = useState('')
   const [cancelling, setCancelling] = useState(false)
+
+  // Attestation re-upload
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [attestationFile, setAttestationFile] = useState<File | null>(null)
+  const [uploadingAttestation, setUploadingAttestation] = useState(false)
+  const [attestationUploadError, setAttestationUploadError] = useState<string | null>(null)
+  const attestationError = searchParams.get('attestation_error') === '1'
 
   useEffect(() => {
     loadBooking()
@@ -133,13 +143,43 @@ export default function BookingStatusPage() {
   async function loadBooking() {
     const { data, error } = await supabase
       .from('bookings')
-      .select('id, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, scheduled_at, trip_type, status, estimated_min, estimated_max, base_price, distance_km, duration_min, refusal_comment, cancellation_reason, notes, drivers(first_name, last_name, phone)')
+      .select('id, pickup_address, pickup_lat, pickup_lng, dropoff_address, dropoff_lat, dropoff_lng, scheduled_at, trip_type, status, estimated_min, estimated_max, base_price, distance_km, duration_min, refusal_comment, cancellation_reason, notes, is_conventional, attestation_url, drivers(first_name, last_name, phone)')
       .eq('id', params.id)
       .single()
 
     if (error || !data) { setNotFound(true); setLoading(false); return }
     setBooking(data as any)
     setLoading(false)
+  }
+
+  async function handleAttestationUpload() {
+    if (!booking || !attestationFile) return
+    if (attestationFile.size > 5 * 1024 * 1024) {
+      setAttestationUploadError('Le fichier ne doit pas dépasser 5 Mo.')
+      return
+    }
+    setUploadingAttestation(true)
+    setAttestationUploadError(null)
+
+    const ext = attestationFile.name.split('.').pop()
+    const path = `${booking.id}/${Date.now()}.${ext}`
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('attestations')
+      .upload(path, attestationFile, { contentType: attestationFile.type })
+
+    if (uploadError || !uploadData) {
+      setAttestationUploadError("L'envoi a échoué. Veuillez réessayer.")
+      setUploadingAttestation(false)
+      return
+    }
+
+    const { data: urlData } = supabase.storage.from('attestations').getPublicUrl(uploadData.path)
+    await supabase.from('bookings').update({ attestation_url: urlData.publicUrl }).eq('id', booking.id)
+    setBooking(prev => prev ? { ...prev, attestation_url: urlData.publicUrl } : prev)
+    setAttestationFile(null)
+    setUploadingAttestation(false)
+    // Remove error param from URL without reload
+    router.replace(`/booking/${booking.id}`)
   }
 
   async function handleCancelClick() {
@@ -219,6 +259,72 @@ export default function BookingStatusPage() {
             <p className="text-sm mt-2 opacity-80">Raison : {booking.cancellation_reason}</p>
           )}
         </div>
+
+        {/* Attestation CPAM manquante */}
+        {booking.is_conventional && !booking.attestation_url && (
+          <div className="bg-amber-50 border border-amber-300 rounded-2xl p-5">
+            {attestationError && (
+              <p className="text-sm text-red-700 font-medium mb-3">
+                L'envoi de votre attestation a échoué. Vous pouvez la joindre ci-dessous.
+              </p>
+            )}
+            <p className="text-sm font-semibold text-amber-800 mb-1">Attestation de transport CPAM</p>
+            <p className="text-xs text-amber-600 mb-3">Joignez votre bon de transport pour faciliter le traitement de votre course conventionnée (PDF, max 5 Mo).</p>
+
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={e => setAttestationFile(e.target.files?.[0] ?? null)}
+              className="hidden"
+            />
+
+            {attestationFile ? (
+              <div className="flex items-center justify-between bg-white border border-amber-200 rounded-xl px-4 py-3 mb-3">
+                <div>
+                  <p className="text-sm text-amber-800 font-medium truncate max-w-[200px]">{attestationFile.name}</p>
+                  <p className="text-xs text-amber-500">{(attestationFile.size / 1024).toFixed(0)} Ko</p>
+                </div>
+                <button type="button" onClick={() => setAttestationFile(null)} className="text-xs text-red-500 hover:text-red-700 font-medium">
+                  Supprimer
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="w-full border-2 border-dashed border-amber-300 rounded-xl py-3 text-sm text-amber-600 hover:border-amber-400 hover:text-amber-700 transition-colors mb-3"
+              >
+                + Sélectionner un fichier PDF
+              </button>
+            )}
+
+            {attestationUploadError && (
+              <p className="text-xs text-red-600 mb-2">{attestationUploadError}</p>
+            )}
+
+            {attestationFile && (
+              <button
+                onClick={handleAttestationUpload}
+                disabled={uploadingAttestation}
+                className="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors"
+              >
+                {uploadingAttestation ? 'Envoi en cours...' : 'Envoyer l\'attestation'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Attestation CPAM jointe */}
+        {booking.is_conventional && booking.attestation_url && (
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-center gap-3">
+            <div className="flex-1">
+              <p className="text-xs font-medium text-blue-700 mb-1">Course conventionnée CPAM</p>
+              <p className="text-xs text-blue-500">Attestation jointe — le chauffeur pourra la consulter.</p>
+            </div>
+            <span className="text-blue-700 text-lg">✓</span>
+          </div>
+        )}
 
         {/* Référence */}
         <div className="bg-white rounded-2xl shadow-sm px-5 py-3 flex items-center justify-between">

@@ -111,8 +111,10 @@ export default function ConfirmPage() {
         .upload(path, pdfFile, { contentType: pdfFile.type })
 
       if (uploadError) {
-        // Booking created but PDF failed — proceed but warn on status page
-        console.error('Attestation upload failed:', uploadError.message)
+        // Booking created but PDF failed — redirect with warning flag
+        clearBookingSession()
+        router.push(`/booking/${data.id}?attestation_error=1`)
+        return
       } else if (uploadData) {
         const { data: urlData } = supabase.storage.from('attestations').getPublicUrl(uploadData.path)
         await supabase.from('bookings').update({ attestation_url: urlData.publicUrl }).eq('id', data.id)
