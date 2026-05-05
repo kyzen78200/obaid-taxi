@@ -82,11 +82,13 @@ serve(async (req) => {
 
 async function getPushToken(clientId: string): Promise<string | null> {
   const { data } = await supabase
-    .from('profiles')
-    .select('push_token')
-    .eq('id', clientId)
+    .from('push_tokens')
+    .select('token')
+    .eq('user_id', clientId)
+    .order('updated_at', { ascending: false })
+    .limit(1)
     .single()
-  return data?.push_token ?? null
+  return data?.token ?? null
 }
 
 async function getClientEmail(clientId: string | null): Promise<string | null> {

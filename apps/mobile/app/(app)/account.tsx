@@ -4,6 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Pressable,
   StyleSheet,
   ScrollView,
   ActivityIndicator,
@@ -14,6 +15,7 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
+import { Ionicons } from '@expo/vector-icons'
 import { supabase } from '../../lib/supabase'
 import { useAuthStore } from '../../store/auth'
 
@@ -55,6 +57,9 @@ export default function AccountScreen() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [savingPassword, setSavingPassword] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const [notifPrefs, setNotifPrefs] = useState<NotifPrefs>(DEFAULT_PREFS)
   const [savingNotifs, setSavingNotifs] = useState(false)
@@ -308,38 +313,53 @@ export default function AccountScreen() {
             <Text style={styles.cardTitle}>Securite</Text>
 
             <Text style={styles.label}>Mot de passe actuel</Text>
-            <TextInput
-              style={styles.input}
-              value={currentPassword}
-              onChangeText={setCurrentPassword}
-              placeholder="Votre mot de passe actuel"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-              returnKeyType="next"
-            />
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.inputWithIcon}
+                value={currentPassword}
+                onChangeText={setCurrentPassword}
+                placeholder="Votre mot de passe actuel"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry={!showCurrentPassword}
+                returnKeyType="next"
+              />
+              <Pressable style={styles.eyeButton} onPress={() => setShowCurrentPassword(v => !v)}>
+                <Ionicons name={showCurrentPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="#9CA3AF" />
+              </Pressable>
+            </View>
 
             <Text style={styles.label}>Nouveau mot de passe</Text>
-            <TextInput
-              style={styles.input}
-              value={newPassword}
-              onChangeText={setNewPassword}
-              placeholder="Au moins 8 caracteres"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-              returnKeyType="next"
-            />
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.inputWithIcon}
+                value={newPassword}
+                onChangeText={setNewPassword}
+                placeholder="Au moins 8 caracteres"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry={!showNewPassword}
+                returnKeyType="next"
+              />
+              <Pressable style={styles.eyeButton} onPress={() => setShowNewPassword(v => !v)}>
+                <Ionicons name={showNewPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="#9CA3AF" />
+              </Pressable>
+            </View>
 
             <Text style={styles.label}>Confirmer le mot de passe</Text>
-            <TextInput
-              style={styles.input}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Repetez le mot de passe"
-              placeholderTextColor="#9CA3AF"
-              secureTextEntry
-              returnKeyType="done"
-              onSubmitEditing={handleChangePassword}
-            />
+            <View style={styles.inputWrapper}>
+              <TextInput
+                style={styles.inputWithIcon}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                placeholder="Repetez le mot de passe"
+                placeholderTextColor="#9CA3AF"
+                secureTextEntry={!showConfirmPassword}
+                returnKeyType="done"
+                onSubmitEditing={handleChangePassword}
+              />
+              <Pressable style={styles.eyeButton} onPress={() => setShowConfirmPassword(v => !v)}>
+                <Ionicons name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="#9CA3AF" />
+              </Pressable>
+            </View>
 
             <TouchableOpacity
               style={[styles.primaryButton, savingPassword && styles.disabledButton]}
@@ -440,6 +460,22 @@ const styles = StyleSheet.create({
     color: '#111827',
     backgroundColor: '#FFFFFF',
   },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  inputWithIcon: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: '#111827',
+  },
+  eyeButton: { paddingHorizontal: 12 },
 
   primaryButton: {
     backgroundColor: '#1D4ED8',
