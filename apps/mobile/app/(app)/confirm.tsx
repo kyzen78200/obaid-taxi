@@ -181,13 +181,11 @@ export default function ConfirmScreen() {
       const adminUrl = process.env.EXPO_PUBLIC_ADMIN_URL ?? 'http://localhost:3000'
       supabase.auth.getSession().then(({ data: sessionData }) => {
         const token = sessionData.session?.access_token
-        if (!token) return
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+        if (token) headers['Authorization'] = `Bearer ${token}`
         fetch(`${adminUrl}/api/notify/booking-created`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
+          headers,
           body: JSON.stringify({ bookingId: data.id }),
         }).catch(() => {})
       })
