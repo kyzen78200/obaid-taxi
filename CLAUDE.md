@@ -221,6 +221,42 @@ npx eas env:create --environment preview --name GOOGLE_MAPS_API_KEY --type sensi
 
 ---
 
+## Agents de revue du projet (`/review-*`)
+
+Des agents spécialisés sont disponibles comme commandes slash pour analyser et documenter le projet automatiquement.
+
+### Commandes disponibles
+
+| Commande | Rôle | Produit |
+|----------|------|---------|
+| `/review-all` | Orchestre la revue complète (lance tous les agents dans l'ordre) | Tous les rapports |
+| `/review-architect` | Agent A — Analyse architecture, monorepo, scalabilité | `.claude/reports/architecture.md` |
+| `/review-quality-security` | Agent B — Analyse qualité du code et sécurité API/RLS | `.claude/reports/quality-security.md` |
+| `/review-performance` | Agent C — Analyse performances et couverture de tests | `.claude/reports/performance-testing.md` |
+| `/review-synthesis` | Agent D — Synthèse Tech Lead, plan d'action priorisé | `.claude/reports/synthesis-action-plan.md` |
+| `/review-docs` | Agent E — Met à jour la doc (CLAUDE.md, JSDoc, mémoire) | `.claude/reports/last-review.md` |
+
+### Pipeline d'exécution
+
+```
+Phase 1 (parallèle)       Phase 2          Phase 3
+/review-architect  ─┐
+/review-quality    ├─→  /review-synthesis  ─→  /review-docs
+/review-performance┘
+```
+
+### Quand lancer une revue
+
+- **Avant un sprint** : `/review-all` pour avoir un état complet du projet
+- **Après une fonctionnalité majeure** : `/review-quality-security` + `/review-docs`
+- **Avant l'app chauffeur** : `/review-architect` pour valider que la structure est prête
+- **Après une modification de CLAUDE.md** : `/review-docs` pour synchroniser la mémoire
+
+### Rapports
+Les rapports sont dans `.claude/reports/` et sont ignorés par git (non commitables). Le dernier run est dans `.claude/reports/last-review.md`.
+
+---
+
 ## Roadmap post-V1 (ne pas implémenter avant le lancement)
 
 1. **Migration npm → Yarn workspaces** — résoudre proprement le conflit React 18/19 sans patch metro

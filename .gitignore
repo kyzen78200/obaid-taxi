@@ -4,8 +4,12 @@ node_modules
 # Claude Code — settings locaux (contient des tokens, ne jamais committer)
 .claude/settings.json
 .claude/settings.local.json
+.claude/reports/
 .mcp.local.json
 .mcp.json
+
+# Supabase CLI temp files
+supabase/.temp/
 dist
 .next
 .expo
