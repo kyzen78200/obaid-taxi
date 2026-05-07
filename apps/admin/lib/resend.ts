@@ -2,10 +2,15 @@ import { Resend } from 'resend'
 
 export const resend = new Resend(process.env.RESEND_API_KEY)
 
+/** Adresse expéditeur pour tous les emails transactionnels */
 export const FROM_EMAIL = 'O Taxi <onboarding@resend.dev>'
 
 // ── Email templates ──────────────────────────────────────────
 
+/**
+ * Template HTML envoyé au client juste après la création de sa réservation (statut pending).
+ * Appelé depuis /api/notify/booking-created.
+ */
 export function bookingConfirmedHtml(data: {
   clientName: string
   pickup: string
@@ -35,6 +40,10 @@ export function bookingConfirmedHtml(data: {
   </div>`
 }
 
+/**
+ * Template HTML de rappel envoyé au client la veille de sa course.
+ * Appelé par le cron quotidien /api/cron/reminders (tous les jours à 8h).
+ */
 export function bookingReminderDayBeforeHtml(data: {
   clientName: string
   pickup: string
@@ -61,6 +70,11 @@ export function bookingReminderDayBeforeHtml(data: {
   </div>`
 }
 
+/**
+ * Template HTML de récapitulatif de course envoyé au client après completion.
+ * Inclut les points de fidélité gagnés si applicable.
+ * Appelé depuis la Edge Function on-booking-status-changed via Resend.
+ */
 export function bookingRecapHtml(data: {
   clientName: string
   pickup: string
@@ -89,6 +103,10 @@ export function bookingRecapHtml(data: {
   </div>`
 }
 
+/**
+ * Template HTML envoyé au chauffeur après création de son compte (statut pending).
+ * Appelé depuis /api/register-driver.
+ */
 export function driverWelcomeHtml(data: { firstName: string; email: string }) {
   return `
   <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
@@ -108,6 +126,10 @@ export function driverWelcomeHtml(data: { firstName: string; email: string }) {
   </div>`
 }
 
+/**
+ * Template HTML envoyé au chauffeur lorsque son compte passe au statut 'approved'.
+ * Appelé depuis /api/notify/driver-status.
+ */
 export function driverApprovedHtml(data: { firstName: string }) {
   return `
   <div style="font-family:sans-serif;max-width:520px;margin:0 auto;padding:24px">
@@ -126,6 +148,11 @@ export function driverApprovedHtml(data: { firstName: string }) {
   </div>`
 }
 
+/**
+ * Template HTML du récapitulatif quotidien envoyé à l'admin (kyzen78200@gmail.com).
+ * Contient toutes les courses confirmées du lendemain.
+ * Appelé par le cron /api/cron/reminders tous les matins à 8h.
+ */
 export function adminDailyRecapHtml(data: {
   date: string
   bookings: { time: string; pickup: string; dropoff: string; client: string; driver?: string }[]

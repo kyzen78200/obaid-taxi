@@ -9,6 +9,14 @@ const supabaseAdmin = createClient(
 
 // ── Mobile Push (Expo) ─────────────────────────────────────
 
+/**
+ * Envoie une notification push mobile à tous les appareils enregistrés d'un utilisateur
+ * via l'Expo Push Service (https://exp.host/--/api/v2/push/send).
+ * Appelé depuis les API routes admin lors des changements de statut de réservation.
+ *
+ * @param userId - ID de l'utilisateur cible (doit avoir un token dans push_tokens)
+ * @param notification - Contenu de la notification (title, body, data optionnel)
+ */
 export async function sendMobilePush(
   userId: string,
   notification: { title: string; body: string; data?: Record<string, unknown> },
@@ -37,6 +45,14 @@ export async function sendMobilePush(
 
 // ── Web Push (Chauffeur) ───────────────────────────────────
 
+/**
+ * Envoie une notification Web Push VAPID à un chauffeur spécifique.
+ * Nettoie automatiquement les subscriptions expirées (410 Gone) de la BDD.
+ * Appelé lors de l'assignation d'une course ou d'une annulation client.
+ *
+ * @param driverUserId - user_id du chauffeur (clé étrangère dans web_push_subscriptions)
+ * @param notification - Contenu de la notification
+ */
 export async function sendDriverWebPush(
   driverUserId: string,
   notification: { title: string; body: string; data?: Record<string, unknown> },
@@ -57,7 +73,13 @@ export async function sendDriverWebPush(
   }
 }
 
-// Broadcast to ALL approved drivers
+/**
+ * Diffuse une notification Web Push à tous les chauffeurs approuvés,
+ * en respectant leur préférence push_new_broadcast.
+ * Appelé depuis booking-created pour alerter les chauffeurs d'une nouvelle réservation.
+ *
+ * @param notification - Contenu de la notification à diffuser
+ */
 export async function broadcastWebPushToAllDrivers(
   notification: { title: string; body: string; data?: Record<string, unknown> },
 ) {
@@ -83,6 +105,12 @@ export async function broadcastWebPushToAllDrivers(
 
 // ── Web Push (Admin) ───────────────────────────────────────
 
+/**
+ * Envoie une notification Web Push à tous les profils avec le rôle 'admin'.
+ * Utilisé pour alerter le gestionnaire (Obaid) en temps réel d'une nouvelle réservation.
+ *
+ * @param notification - Contenu de la notification
+ */
 export async function sendAdminWebPush(
   notification: { title: string; body: string; data?: Record<string, unknown> },
 ) {
@@ -112,6 +140,14 @@ export async function sendAdminWebPush(
 
 // ── Email helpers ──────────────────────────────────────────
 
+/**
+ * Envoie un email transactionnel via Resend.
+ * Ne fait rien si `to` est vide (évite les erreurs silencieuses avec les invités sans email).
+ *
+ * @param to - Adresse email destinataire
+ * @param subject - Objet de l'email
+ * @param html - Contenu HTML (utiliser les templates de resend.ts)
+ */
 export async function sendEmail(to: string, subject: string, html: string) {
   if (!to) return
   await resend.emails.send({ from: FROM_EMAIL, to, subject, html })
@@ -119,6 +155,12 @@ export async function sendEmail(to: string, subject: string, html: string) {
 
 // ── Admin in-app notification ──────────────────────────────
 
+/**
+ * Crée une notification in-app pour le gestionnaire (table admin_notifications).
+ * Affichée dans AdminNotificationBell via subscription Realtime.
+ *
+ * @param data - Type, titre, corps et données optionnelles de la notification
+ */
 export async function createAdminNotification(data: {
   type: string
   title: string
@@ -130,6 +172,14 @@ export async function createAdminNotification(data: {
 
 // ── Preference-aware helpers ────────────────────────────────
 
+/**
+ * Envoie une notification push mobile au client, en respectant sa préférence push_booking_status.
+ * Appelé depuis /api/notify/booking-status lors des changements de statut confirmé/refusé.
+ *
+ * @param clientId - ID du client (user_id Supabase)
+ * @param clientEmail - Email du client (non utilisé ici, conservé pour extension future)
+ * @param notification - Contenu de la notification
+ */
 export async function notifyClientStatusChange(
   clientId: string,
   clientEmail: string | null,
@@ -147,6 +197,10 @@ export async function notifyClientStatusChange(
   }
 }
 
+/**
+ * Notifie le chauffeur qu'une course qui lui était assignée a été annulée.
+ * Respecte la préférence push_cancelled du chauffeur.
+ */
 export async function notifyDriverCancelled(
   driverUserId: string,
   notification: { title: string; body: string; data?: Record<string, unknown> },
@@ -162,6 +216,10 @@ export async function notifyDriverCancelled(
   }
 }
 
+/**
+ * Notifie le chauffeur qu'une course vient de lui être assignée par le gestionnaire.
+ * Respecte la préférence push_assigned du chauffeur.
+ */
 export async function notifyDriverAssigned(
   driverUserId: string,
   notification: { title: string; body: string; data?: Record<string, unknown> },

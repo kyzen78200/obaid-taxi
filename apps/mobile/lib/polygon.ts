@@ -1,7 +1,10 @@
 /**
- * Algorithme ray-casting : retourne true si le point est dans le polygone.
- * polygon : tableau de [lng, lat] (format GeoJSON)
- * point   : { lat, lng }
+ * Détermine si un point GPS est à l'intérieur d'un polygone (algorithme ray-casting).
+ * Utilisé pour vérifier si un point de départ/arrivée tombe dans une zone forfait.
+ *
+ * @param point - Coordonnées du point à tester { lat, lng }
+ * @param polygon - Tableau de sommets du polygone au format GeoJSON [lng, lat]
+ * @returns true si le point est à l'intérieur du polygone
  */
 export function isPointInPolygon(
   point: { lat: number; lng: number },
@@ -20,7 +23,11 @@ export function isPointInPolygon(
   return inside
 }
 
-// Zone Mantes-la-Jolie — coordonnées GeoJSON [lng, lat]
+/**
+ * Polygone de la zone de desserte principale (Mantes-la-Jolie et communes limitrophes).
+ * Utilisé pour déterminer si un trajet est éligible aux forfaits locaux.
+ * Coordonnées au format GeoJSON [lng, lat].
+ */
 export const MANTES_POLYGON: [number, number][] = [
   [1.679371710738983,  49.00415094708245],
   [1.6478899729894514, 48.97388394305605],

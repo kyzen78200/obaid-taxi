@@ -28,19 +28,30 @@ cd "C:/Users/Youssef/Documents/Obaid Taxi/obaid-taxi"
 npm install
 ```
 
+Le script `postinstall` compile automatiquement `packages/shared` — c'est normal.
+
 ---
 
 ## Étape 3 — Configurer Supabase
 
 1. Va sur [supabase.com](https://supabase.com) → Créer un nouveau projet
 2. Dans le projet Supabase :
-   - **Settings → API** : copie l'URL et la clé `anon` et `service_role`
-   - **SQL Editor** : exécute les fichiers dans l'ordre :
-     - `supabase/migrations/001_initial.sql`
-     - `supabase/migrations/002_loyalty_function.sql`
+   - **Settings → API** : copie l'URL et les clés `anon` et `service_role`
+   - **SQL Editor** : exécute les fichiers de migration dans l'ordre numérique :
+     ```
+     supabase/migrations/001_initial.sql
+     supabase/migrations/002_loyalty_function.sql
+     supabase/migrations/003_...
+     ...jusqu'à la dernière migration disponible
+     ```
 
 3. Active le **Realtime** sur la table `bookings` :
    - Database → Replication → activer `bookings`
+
+4. Déploie la Edge Function :
+   ```bash
+   supabase functions deploy on-booking-status-changed
+   ```
 
 ---
 
@@ -52,17 +63,14 @@ npm install
    - **Maps SDK for iOS**
    - **Places API**
    - **Directions API**
-3. Créer une clé API et la restreindre à ces APIs
+   - **Geocoding API**
+3. Créer une clé API **sans restriction d'application** mais avec restriction par API (les 5 APIs ci-dessus)
 
 ---
 
 ## Étape 5 — Variables d'environnement
 
-Copie `.env.example` en `.env` et remplis les valeurs :
-
-```bash
-cp .env.example .env
-```
+### App mobile (`apps/mobile/.env`)
 
 ```env
 EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
@@ -70,22 +78,52 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJxxx...
 EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=AIzaXXX...
 ```
 
-Dans `apps/mobile/app.json`, remplace `GOOGLE_MAPS_API_KEY` par ta vraie clé.
+### App admin (`apps/admin/.env.local`)
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx...
+SUPABASE_SERVICE_ROLE_KEY=eyJxxx...
+RESEND_API_KEY=re_xxx...
+ADMIN_EMAIL=kyzen78200@gmail.com
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=...
+VAPID_PRIVATE_KEY=...
+VAPID_EMAIL=mailto:kyzen78200@gmail.com
+CRON_SECRET=un_secret_aleatoire
+```
+
+### App drivers (`apps/drivers/.env.local`) — mêmes variables Supabase que admin
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx...
+SUPABASE_SERVICE_ROLE_KEY=eyJxxx...
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=...
+VAPID_PRIVATE_KEY=...
+VAPID_EMAIL=mailto:kyzen78200@gmail.com
+```
 
 ---
 
-## Étape 6 — Lancer l'application mobile
+## Étape 6 — Lancer les applications
 
 ```bash
 # Depuis la racine du monorepo
-npm run dev:mobile
 
-# Ou depuis apps/mobile
-cd apps/mobile
-npx expo start
+# Back-office gestionnaire (port 3001)
+npm run dev:admin
+
+# Dashboard chauffeur (port 3002)
+npm run dev:drivers
+
+# App web client (port 3000)
+npm run dev:web
+
+# App mobile Expo (attention au conflit React 18/19 en local)
+npm run dev:mobile
 ```
 
-Puis :
+Pour l'app mobile en local :
 - Scanne le QR code avec **Expo Go** (iOS / Android)
 - Ou appuie `i` pour le simulateur iOS, `a` pour l'émulateur Android
 
@@ -104,30 +142,43 @@ npm test
 
 ```
 obaid-taxi/
-├── apps/mobile/          ← App client iOS/Android (Expo Router)
-│   ├── app/(auth)/       ← Écrans d'authentification
-│   ├── app/(app)/        ← Écrans principaux (tabs)
-│   ├── lib/              ← Supabase client, Google Maps
-│   └── store/            ← État global (Zustand)
-├── packages/shared/      ← Moteur tarifaire + types TS
+├── apps/
+│   ├── admin/          # Next.js 14 — dashboard gestionnaire (port 3001)
+│   ├── drivers/        # Next.js 14 — dashboard chauffeur (port 3002)
+│   ├── web/            # Next.js 14 — app web client (port 3000)
+│   └── mobile/         # Expo SDK 54 — app client iOS + Android
+├── packages/
+│   └── shared/         # Types TypeScript + logique tarifaire (compilé via postinstall)
 └── supabase/
-    ├── migrations/       ← Schéma SQL à exécuter dans Supabase
-    └── functions/        ← Edge Functions (notifications)
+    ├── migrations/      # Schéma SQL (001 → 013+) à exécuter dans Supabase
+    └── functions/       # Edge Functions (on-booking-status-changed)
 ```
-
----
-
-## Prochaine étape : Admin Web
-
-L'application admin (back-office) sera créée dans `apps/admin/` avec Next.js.
-Lance `npm run dev:admin` une fois créée.
 
 ---
 
 ## Déploiement mobile (EAS Build)
 
+La clé Google Maps doit être configurée comme variable d'env EAS (pas dans le code) :
+
 ```bash
+# Depuis apps/mobile/
 npm install -g eas-cli
 eas login
-eas build --platform all --profile preview
+
+# Configurer la clé Google Maps comme variable sensible
+npx eas env:create --environment preview --name GOOGLE_MAPS_API_KEY --type sensitive --value "AIzaXXX..."
+
+# Lancer un build
+npx eas build --profile preview --platform android --non-interactive
+npx eas build --profile preview --platform ios   # interactif (certificats Apple)
 ```
+
+> Note : `eas.json` est dans `apps/mobile/`, pas à la racine du monorepo.
+
+---
+
+## Points d'attention
+
+- **Conflit React 18/19** : `apps/admin` utilise React 18.3.1, `apps/mobile` utilise React 19.1.0. Ne pas modifier ces versions. Le fichier `.npmrc` à la racine contient `legacy-peer-deps=true` qui est requis.
+- **`packages/shared` doit être compilé** avant de lancer les apps — c'est automatique via `postinstall`.
+- **Cron Vercel** : limité à 1 exécution/jour sur le plan Hobby (`"0 8 * * *"` dans `apps/admin/vercel.json`).

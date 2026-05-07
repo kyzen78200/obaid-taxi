@@ -13,6 +13,12 @@ export interface RouteInfo {
 /**
  * Récupère la distance (km), la durée estimée (min) et le tracé encodé
  * entre deux points via l'API Google Directions.
+ *
+ * @param origin - Coordonnées du point de départ
+ * @param destination - Coordonnées du point d'arrivée
+ * @returns Infos de trajet incluant la polyline encodée pour l'affichage sur carte
+ * @throws Error si la requête HTTP échoue ou si Google Directions retourne un status != 'OK'
+ *         (ex : ZERO_RESULTS si les deux points sont inaccessibles, REQUEST_DENIED si la clé est invalide)
  */
 export async function getRouteInfo(
   origin: { lat: number; lng: number },

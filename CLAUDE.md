@@ -257,6 +257,45 @@ Les rapports sont dans `.claude/reports/` et sont ignorés par git (non commitab
 
 ---
 
+## État de santé technique
+
+**Dernière revue :** 2026-05-07 — Plan d'action complet : `.claude/reports/synthesis-action-plan.md`
+
+| Catégorie     | Score | Résumé |
+|--------------|-------|--------|
+| Architecture | 7/10  | Solide pour MVP, duplication de code à traiter post-V1 |
+| Qualité code | 6/10  | Bonne structure globale, `any` et fichiers XXL à traiter |
+| Sécurité     | 6/10  | 3 points critiques à corriger avant déploiement |
+| Performance  | 7/10  | Une requête non limitée risquée, reste acceptable MVP |
+| Tests        | 3/10  | Quasi inexistants hors `pricing.ts`, bloquant avant app chauffeur |
+
+---
+
+## Dette technique connue
+
+### Bloquant avant V1
+
+- **[C1]** `supabase/migrations/004_zones.sql` — RLS `zones_admin_write` trop permissive (tout utilisateur authentifié peut modifier les tarifs forfaitaires) → nouvelle migration `014_fix_zones_rls.sql`
+- **[C2]** `apps/admin/app/api/notify/booking-created/route.ts` — CORS wildcard + auth optionnelle → rendre le Bearer token obligatoire
+- **[C3]** `supabase/migrations/001_initial.sql` — `is_admin()` lit `user_metadata` (modifiable par l'utilisateur) → migrer vers `app_metadata`
+- **[A1]** `apps/admin/middleware.ts` ligne 24 — `getSession()` ne valide pas le JWT côté serveur → remplacer par `getUser()`
+- **[A2]** `apps/admin/app/clients/page.tsx` lignes 35–43 — requête invités non paginée → ajouter `.limit(500)` minimum
+- **[A3]** `apps/admin/package.json` — `@obaid-taxi/shared` absent → `StatusBadge.tsx` redéfinit `BookingStatus` localement (risque désynchronisation)
+- **[A4]** `supabase/functions/on-booking-status-changed/index.ts` — imports Deno std `0.177.0` et supabase-js non épinglé → épingler les versions
+- **[A5]** `apps/admin/app/api/delete-account/route.ts` — pas de rate limiting → ajouter `rateLimit()` (3 req/h/IP)
+- **[A6]** `apps/admin/components/AdminNotificationBell.tsx` ligne 41 — channel nommé `Date.now()` → utiliser `userId` stable
+- **[A7]** Catch silencieux critiques dans `apps/drivers`, `apps/admin/app/drivers/page.tsx`, `apps/mobile/app/(app)/booking/[id].tsx` → logger avec `console.error`
+
+### Post-V1
+
+- **[D3]** Extraire `canCancel()` vers `packages/shared/src/booking-rules.ts` et la tester (règle métier critique non testée)
+- **[D9]** Ajouter `BookingWithDriver` dans `packages/shared/src/types.ts` (supprimer les 8 casts `as any` dans `booking/[id].tsx`)
+- **[D1]** Retirer dépendances hors-scope de la racine (`react-native-worklets`, `ajv`, etc.) — prérequis migration Yarn
+- **[D4]** Error Boundary global dans `apps/mobile/app/_layout.tsx`
+- **[D12]** Couverture de tests : phase 1 = `haversine`, `rate-limit`, `booking-rules` — bloquant avant app chauffeur
+
+---
+
 ## Roadmap post-V1 (ne pas implémenter avant le lancement)
 
 1. **Migration npm → Yarn workspaces** — résoudre proprement le conflit React 18/19 sans patch metro

@@ -2,7 +2,11 @@ const EARTH_RADIUS_KM = 6371
 
 /**
  * Calcule la distance à vol d'oiseau entre deux points GPS (formule Haversine).
- * Retourne la distance en kilomètres.
+ * Utilisée pour détecter si un point de départ ou d'arrivée est dans une zone forfait.
+ *
+ * @param a - Point d'origine avec latitude et longitude en degrés décimaux
+ * @param b - Point de destination avec latitude et longitude en degrés décimaux
+ * @returns Distance en kilomètres
  */
 export function haversineDistance(
   a: { lat: number; lng: number },
