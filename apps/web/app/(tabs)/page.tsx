@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { calculateFare } from '@obaid-taxi/shared'
 import { getRouteInfo } from '@/lib/google-maps'
 import { saveBookingSession } from '@/lib/booking-session'
-import { haversineDistance } from '@/lib/haversine'
+import { haversineDistance } from '@obaid-taxi/shared'
 import { createClient } from '@/lib/supabase/client'
 
 declare global {

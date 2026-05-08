@@ -1,12 +1,4 @@
-type BookingStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'in_progress'
-  | 'completed'
-  | 'refused'
-  | 'cancelled'
-  | 'no_show'
-  | 'cancellation_requested'
+import type { BookingStatus } from '@obaid-taxi/shared'
 
 const statusConfig: Record<BookingStatus, { label: string; className: string }> = {
   pending: {

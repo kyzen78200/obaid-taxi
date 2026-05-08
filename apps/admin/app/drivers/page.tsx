@@ -62,7 +62,7 @@ export default function DriversPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ driverId: driver.id, newStatus: 'approved' }),
-      }).catch(() => {})
+      }).catch((err) => console.error('[notify driver-status]', err))
     }
     setSaving(null)
     fetchDrivers()
@@ -83,7 +83,7 @@ export default function DriversPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ driverId: driver.id, newStatus: 'revoked' }),
-      }).catch(() => {})
+      }).catch((err) => console.error('[notify driver-status]', err))
     }
     setSaving(null)
     fetchDrivers()

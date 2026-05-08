@@ -38,6 +38,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Sear
     .is('client_id', null)
     .not('guest_phone', 'is', null)
     .order('created_at', { ascending: false })
+    .limit(500) // Guard-rail : évite de charger des milliers de lignes en mémoire
 
   if (search) {
     guestQuery = guestQuery.ilike('guest_name', `%${search}%`)

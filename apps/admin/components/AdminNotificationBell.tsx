@@ -33,18 +33,23 @@ export default function AdminNotificationBell() {
   const unreadCount = notifs.filter(n => !n.read).length
 
   useEffect(() => {
-    loadNotifs()
+    async function init() {
+      loadNotifs()
 
-    // Realtime subscription — unique name avoids React Strict Mode double-mount conflict
-    const channelName = `admin-notifs-${Date.now()}`
-    const channel = supabase.channel(channelName)
-    channel
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_notifications' }, payload => {
-        setNotifs(prev => [payload.new as AdminNotif, ...prev].slice(0, 20))
-      })
-      .subscribe()
+      // Nommer le channel avec l'userId pour éviter les channels orphelins
+      // lors des re-montages React Strict Mode
+      const { data: { user } } = await supabase.auth.getUser()
+      const uid = user?.id ?? 'admin'
+      const channel = supabase.channel(`admin-notifs-${uid}`)
+      channel
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_notifications' }, payload => {
+          setNotifs(prev => [payload.new as AdminNotif, ...prev].slice(0, 20))
+        })
+        .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+      return () => { supabase.removeChannel(channel) }
+    }
+    init()
   }, [])
 
   useEffect(() => {

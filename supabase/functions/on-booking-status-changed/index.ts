@@ -1,12 +1,15 @@
 // Supabase Edge Function (Deno)
 // Déclenchée par un Database Webhook sur UPDATE de la table `bookings`
 
-import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from 'jsr:@std/http/server'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.101.1'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+// Secret partagé configuré dans les secrets Supabase Edge Functions
+// Doit correspondre à la valeur du webhook Supabase (dashboard → Webhooks → signing secret)
+const WEBHOOK_SECRET = Deno.env.get('WEBHOOK_SIGNING_SECRET')
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
@@ -29,9 +32,60 @@ const STATUS_MESSAGES: Record<string, { subject: string; body: string }> = {
   },
 }
 
+/**
+ * Vérifie la signature HMAC-SHA256 du webhook Supabase.
+ * Protège contre la forge de payload (points de fidélité, emails frauduleux).
+ * @see https://supabase.com/docs/guides/functions/webhook-verification
+ */
+async function verifyWebhookSignature(req: Request, rawBody: string): Promise<boolean> {
+  if (!WEBHOOK_SECRET) {
+    // Si le secret n'est pas configuré, passer en mode permissif (dev uniquement)
+    console.warn('[webhook] WEBHOOK_SIGNING_SECRET non défini — vérification de signature ignorée')
+    return true
+  }
+
+  const signature = req.headers.get('x-supabase-webhook-signature')
+  if (!signature) {
+    console.error('[webhook] Signature manquante dans les headers')
+    return false
+  }
+
+  const encoder = new TextEncoder()
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(WEBHOOK_SECRET),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
+
+  const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(rawBody))
+  const expectedSignature = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+
+  // Comparaison résistante aux timing attacks
+  const expected = `sha256=${expectedSignature}`
+  if (expected.length !== signature.length) return false
+
+  let mismatch = 0
+  for (let i = 0; i < expected.length; i++) {
+    mismatch |= expected.charCodeAt(i) ^ signature.charCodeAt(i)
+  }
+  return mismatch === 0
+}
+
 serve(async (req) => {
   try {
-    const body = await req.json()
+    const rawBody = await req.text()
+
+    // Vérifier la signature HMAC avant tout traitement
+    const isValid = await verifyWebhookSignature(req, rawBody)
+    if (!isValid) {
+      console.error('[webhook] Signature invalide — requête rejetée')
+      return new Response('Unauthorized', { status: 401 })
+    }
+
+    const body = JSON.parse(rawBody)
     const { record: booking, old_record: oldBooking } = body
 
     // Ne traiter que les vrais changements de statut

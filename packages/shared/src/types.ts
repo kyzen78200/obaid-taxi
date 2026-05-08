@@ -190,3 +190,12 @@ export interface RouteInfo {
   distance_km: number
   duration_min: number
 }
+
+/**
+ * Réservation avec la relation chauffeur incluse (résultat d'un JOIN Supabase).
+ * Utiliser pour les requêtes `.select('*, drivers(*)')` sur la table bookings.
+ * Élimine le besoin de casts `as any` sur booking.drivers.
+ */
+export interface BookingWithDriver extends Booking {
+  drivers: Pick<Driver, 'id' | 'first_name' | 'last_name' | 'phone'> | null
+}

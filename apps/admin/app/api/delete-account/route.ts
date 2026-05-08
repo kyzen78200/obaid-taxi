@@ -1,6 +1,7 @@
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireBearerAuth } from '@/lib/api-auth'
+import { rateLimit, getIp } from '@/lib/rate-limit'
 
 const supabaseAdmin = createAdminClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -9,6 +10,16 @@ const supabaseAdmin = createAdminClient(
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting : 3 suppressions max/heure/IP (opération irréversible)
+    const ip = getIp(req)
+    const rl = rateLimit(`delete-account:${ip}`, 3, 60 * 60 * 1000)
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: 'Trop de tentatives. Réessayez dans une heure.' },
+        { status: 429 },
+      )
+    }
+
     const { user, error } = await requireBearerAuth(req)
     if (error) return error
 

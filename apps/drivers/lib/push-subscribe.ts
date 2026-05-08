@@ -1,3 +1,7 @@
+// NOTE : ce fichier est intentionnellement dupliqué dans apps/admin et apps/drivers.
+// Il utilise des APIs browser (navigator.serviceWorker, PushManager, window) incompatibles
+// avec React Native — impossible de le placer dans packages/shared sans casser le build mobile.
+// À consolider dans un packages/web-utils lors de la migration Yarn workspaces.
 export async function subscribeForPush(): Promise<string | null> {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
     return 'Notifications non supportées sur ce navigateur'

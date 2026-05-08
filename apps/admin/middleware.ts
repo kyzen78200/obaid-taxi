@@ -21,13 +21,14 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
+  // getUser() valide le JWT côté serveur (contrairement à getSession() qui lit les cookies sans validation)
+  const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
   // ── Page de connexion chauffeur ────────────────────────────────────────────
   if (pathname === '/driver-login') {
-    if (session) {
-      const role = session.user.user_metadata?.role
+    if (user) {
+      const role = user.user_metadata?.role
       if (role === 'driver') return NextResponse.redirect(new URL('/driver', request.url))
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
@@ -36,8 +37,8 @@ export async function middleware(request: NextRequest) {
 
   // ── Page de connexion admin ─────────────────────────────────────────────────
   if (pathname === '/login') {
-    if (session) {
-      const role = session.user.user_metadata?.role
+    if (user) {
+      const role = user.user_metadata?.role
       const dest = role === 'driver' ? '/driver' : '/dashboard'
       return NextResponse.redirect(new URL(dest, request.url))
     }
@@ -46,18 +47,18 @@ export async function middleware(request: NextRequest) {
 
   // ── Racine ──────────────────────────────────────────────────────────────────
   if (pathname === '/') {
-    if (!session) return NextResponse.redirect(new URL('/login', request.url))
-    const role = session.user.user_metadata?.role
+    if (!user) return NextResponse.redirect(new URL('/login', request.url))
+    const role = user.user_metadata?.role
     const dest = role === 'driver' ? '/driver' : '/dashboard'
     return NextResponse.redirect(new URL(dest, request.url))
   }
 
   // ── Non authentifié ─────────────────────────────────────────────────────────
-  if (!session) {
+  if (!user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  const role = session.user.user_metadata?.role
+  const role = user.user_metadata?.role
 
   // Routes chauffeur : /driver (exact) ou /driver/...
   const isDriverRoute = pathname === '/driver' || pathname.startsWith('/driver/')

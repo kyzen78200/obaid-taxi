@@ -15,7 +15,7 @@ import { useBookingStore } from '../../store/booking'
 import { useAuthStore } from '../../store/auth'
 import { getRouteInfo, GOOGLE_MAPS_API_KEY } from '../../lib/google-maps'
 import { supabase } from '../../lib/supabase'
-import { haversineDistance } from '../../lib/haversine'
+import { haversineDistance } from '@obaid-taxi/shared'
 import { calculateFare } from '@obaid-taxi/shared'
 import type { TripType, Coordinates } from '@obaid-taxi/shared'
 

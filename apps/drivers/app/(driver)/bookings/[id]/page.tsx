@@ -128,7 +128,7 @@ export default function DriverBookingDetailPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId: booking.id, newStatus }),
-      }).catch(() => {})
+      }).catch((err) => console.error('[notify driver-action]', err))
     }
     setSaving(false)
   }

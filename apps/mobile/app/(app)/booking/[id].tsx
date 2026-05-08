@@ -28,7 +28,8 @@ import { getRouteInfo } from '../../../lib/google-maps'
 import { decodePolyline } from '../../../lib/decode-polyline'
 import { useAuthStore } from '../../../store/auth'
 import { useGuestHistoryStore } from '../../../store/guestHistory'
-import type { Booking, BookingStatus } from '@obaid-taxi/shared'
+import type { BookingWithDriver, BookingStatus } from '@obaid-taxi/shared'
+import { canCancel } from '@obaid-taxi/shared'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
@@ -63,7 +64,7 @@ export default function BookingStatusScreen() {
   const { isGuest } = useAuthStore()
   const { bookings: guestBookings, updateStatus: updateGuestStatus } = useGuestHistoryStore()
 
-  const [booking, setBooking] = useState<Booking | null>(null)
+  const [booking, setBooking] = useState<BookingWithDriver | null>(null)
   const [loading, setLoading] = useState(true)
   const [cancelling, setCancelling] = useState(false)
   const [polylineCoords, setPolylineCoords] = useState<{ latitude: number; longitude: number }[]>([])
@@ -84,7 +85,7 @@ export default function BookingStatusScreen() {
     if (isGuest) {
       const local = guestBookings.find((b) => b.id === id)
       if (local) {
-        setBooking(local as unknown as Booking)
+        setBooking(local as unknown as BookingWithDriver)
       } else {
         Alert.alert('Erreur', 'Réservation introuvable.')
         router.back()
@@ -98,7 +99,7 @@ export default function BookingStatusScreen() {
     const channel = supabase
       .channel(`booking-${id}`)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings', filter: `id=eq.${id}` },
-        (payload) => setBooking(payload.new as Booking))
+        (payload) => setBooking(payload.new as BookingWithDriver))
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
@@ -140,19 +141,12 @@ export default function BookingStatusScreen() {
           { edgePadding: { top: 48, right: 48, bottom: 48, left: 48 }, animated: true }
         )
       }, 400)
-    } catch {
-      // Tracé indisponible
+    } catch (err) {
+      console.error('[polyline fetch]', err)
     }
   }
 
-  function canCancel(bk: Booking): boolean {
-    if (bk.status === 'pending') return true
-    if (bk.status === 'confirmed') {
-      const twoHoursMs = 2 * 60 * 60 * 1000
-      return new Date(bk.scheduled_at).getTime() - Date.now() >= twoHoursMs
-    }
-    return false
-  }
+  // canCancel() importé depuis @obaid-taxi/shared — voir packages/shared/src/booking-rules.ts
 
   function openCancelModal() {
     if (!booking) return
@@ -232,7 +226,7 @@ export default function BookingStatusScreen() {
   const pickupCoord  = { latitude: booking.pickup_lat,  longitude: booking.pickup_lng }
   const dropoffCoord = { latitude: booking.dropoff_lat, longitude: booking.dropoff_lng }
 
-  const showCancelBtn = canCancel(booking)
+  const showCancelBtn = canCancel(booking.status, booking.scheduled_at)
   const isTerminal = ['completed', 'cancelled', 'refused', 'no_show'].includes(booking.status)
 
   return (
@@ -348,12 +342,12 @@ export default function BookingStatusScreen() {
         ) : null}
 
         {/* ── Infos chauffeur (si confirmée ou en route) ── */}
-        {(booking.status === 'confirmed' || booking.status === 'in_progress') && (booking as any).drivers && (
+        {(booking.status === 'confirmed' || booking.status === 'in_progress') && booking.drivers && (
           <View style={[styles.card, { borderLeftWidth: 4, borderLeftColor: '#1D4ED8' }]}>
             <Text style={styles.sectionTitle}>Votre chauffeur</Text>
-            <DetailRow icon="person-outline" label="Nom"      value={`${(booking as any).drivers.first_name} ${(booking as any).drivers.last_name}`} />
-            {(booking as any).drivers.phone && (
-              <DetailRow icon="call-outline" label="Téléphone" value={(booking as any).drivers.phone} />
+            <DetailRow icon="person-outline" label="Nom"      value={`${booking.drivers.first_name} ${booking.drivers.last_name}`} />
+            {booking.drivers.phone && (
+              <DetailRow icon="call-outline" label="Téléphone" value={booking.drivers.phone} />
             )}
           </View>
         )}
@@ -440,20 +434,20 @@ export default function BookingStatusScreen() {
               Votre course est dans moins de 2 heures et ne peut plus être annulée en ligne.
             </Text>
 
-            {(booking as any).drivers ? (
+            {booking.drivers ? (
               <View style={styles.driverContactBox}>
                 <Text style={styles.driverContactLabel}>Contactez votre chauffeur directement :</Text>
                 <Text style={styles.driverContactName}>
-                  {(booking as any).drivers.first_name} {(booking as any).drivers.last_name}
+                  {booking.drivers.first_name} {booking.drivers.last_name}
                 </Text>
-                {(booking as any).drivers.phone && (
+                {booking.drivers.phone && (
                   <TouchableOpacity
                     style={[styles.callButton, { flexDirection: 'row', gap: 8, justifyContent: 'center', alignItems: 'center' }]}
-                    onPress={() => Linking.openURL(`tel:${(booking as any).drivers.phone}`)}
+                    onPress={() => Linking.openURL(`tel:${booking.drivers.phone}`)}
                   >
                     <Ionicons name="call-outline" size={15} color="#fff" />
                     <Text style={styles.callButtonText}>
-                      Appeler {(booking as any).drivers.phone}
+                      Appeler {booking.drivers.phone}
                     </Text>
                   </TouchableOpacity>
                 )}
