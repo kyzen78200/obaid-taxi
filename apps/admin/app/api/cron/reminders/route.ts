@@ -123,7 +123,7 @@ async function sendDayBeforeEmails(results: string[]) {
 
   if (!bookings?.length) return
 
-  for (const bk of bookings as BookingForReminder[]) {
+  for (const bk of bookings as unknown as BookingForReminder[]) {
     const clientEmail = bk.profiles?.email ?? bk.guest_email
     const clientName = bk.profiles?.full_name ?? 'Client'
     const driverName = bk.drivers
@@ -183,7 +183,7 @@ async function sendAdminDailyRecap(results: string[]) {
     `O Taxi — ${bookings.length} course(s) demain ${dateStr}`,
     adminDailyRecapHtml({
       date: dateStr,
-      bookings: (bookings as BookingForReminder[]).map(bk => ({
+      bookings: (bookings as unknown as BookingForReminder[]).map(bk => ({
         time: fmtTime(bk.scheduled_at),
         client: bk.profiles?.full_name ?? 'Invité',
         pickup: bk.pickup_address,
