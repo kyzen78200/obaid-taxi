@@ -16,6 +16,7 @@ import {
 import { bookingRecapHtml } from '@/lib/resend'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { fmtDateShort } from '@/lib/format-date'
 import { AlertTriangle, CheckCircle, XCircle, RefreshCw, Star, UserX, Ban, Megaphone, FileText, Cross } from '@/components/Icons'
 
 type BookingStatus = 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'refused' | 'cancelled' | 'no_show' | 'cancellation_requested'
@@ -485,6 +486,7 @@ export default async function BookingDetailPage({
                     <dt className="text-gray-500 font-medium">Date et heure</dt>
                     <dd className="text-gray-900 mt-0.5 font-medium">
                       {new Date(booking.scheduled_at).toLocaleString('fr-FR', {
+                        timeZone: 'Europe/Paris',
                         weekday: 'long', day: '2-digit', month: 'long',
                         year: 'numeric', hour: '2-digit', minute: '2-digit',
                       })}
@@ -652,7 +654,7 @@ export default async function BookingDetailPage({
                   <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                     <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
                     <p className="text-xs text-amber-700">
-                      Course prévue le {format(new Date(booking.scheduled_at), "d MMM 'à' HH'h'mm", { locale: fr })} — disponible après la prise en charge.
+                      Course prévue le {fmtDateShort(booking.scheduled_at)} — disponible après la prise en charge.
                     </p>
                   </div>
                 )}
@@ -756,6 +758,7 @@ export default async function BookingDetailPage({
                         </div>
                         <p className="text-xs text-gray-400">
                           {new Date(entry.changed_at).toLocaleString('fr-FR', {
+                            timeZone: 'Europe/Paris',
                             day: '2-digit', month: '2-digit', year: '2-digit',
                             hour: '2-digit', minute: '2-digit',
                           })}
@@ -778,6 +781,7 @@ export default async function BookingDetailPage({
                   <dt className="text-gray-500">Créée le</dt>
                   <dd className="text-gray-900 text-xs">
                     {new Date(booking.created_at).toLocaleString('fr-FR', {
+                      timeZone: 'Europe/Paris',
                       day: '2-digit', month: '2-digit', year: 'numeric',
                       hour: '2-digit', minute: '2-digit',
                     })}

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import AdminLayout from '@/components/AdminLayout'
 import StatusBadge from '@/components/StatusBadge'
 import Link from 'next/link'
+import { getParisDayStartISO, getParisDayEndISO, getParisMonthStartISO, getParisMonthEndISO } from '@/lib/format-date'
 
 interface StatCardProps {
   title: string
@@ -32,10 +33,11 @@ export default async function DashboardPage() {
   const supabase = createClient()
 
   const now = new Date()
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
-  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).toISOString()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString()
+  // Calcul des bornes en heure Paris (Vercel tourne en UTC — sans ça, minuit UTC ≠ minuit Paris)
+  const todayStart = getParisDayStartISO(now)
+  const todayEnd   = getParisDayEndISO(now)
+  const monthStart = getParisMonthStartISO(now)
+  const monthEnd   = getParisMonthEndISO(now)
 
   // Fetch today's bookings by status
   const [
@@ -156,6 +158,7 @@ export default async function DashboardPage() {
                     >
                       <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
                         {new Date(booking.scheduled_at).toLocaleString('fr-FR', {
+                          timeZone: 'Europe/Paris',
                           day: '2-digit',
                           month: '2-digit',
                           hour: '2-digit',

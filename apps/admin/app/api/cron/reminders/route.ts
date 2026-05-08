@@ -8,13 +8,29 @@ import {
   bookingRecapHtml,
   adminDailyRecapHtml,
 } from '@/lib/resend'
-import { format, addHours, addDays, startOfDay, endOfDay } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { addHours } from 'date-fns'
+import {
+  fmtDateTimeLong, fmtDateShort, fmtTime,
+  getParisHour, getParisDayStartISO, getParisDayEndISO,
+} from '@/lib/format-date'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 )
+
+// ─── Types locaux pour les jointures Supabase ─────────────────────────────────
+type BookingForReminder = {
+  id: string
+  client_id: string | null
+  pickup_address: string
+  dropoff_address: string
+  scheduled_at: string
+  guest_email?: string | null
+  profiles?: { full_name: string | null; email?: string | null } | null
+  drivers?: { first_name: string; last_name: string } | null
+}
+type NotifPrefs = { push_reminder_1h?: boolean | null; push_reminder_15min?: boolean | null }
 
 // Protect cron endpoint
 function isAuthorized(req: NextRequest) {
@@ -31,7 +47,7 @@ export async function GET(req: NextRequest) {
   const results: string[] = []
 
   // ── 1h reminder push ──────────────────────────────────────
-  const in1h = addHours(now, 60)
+  const in1h = addHours(now, 1)
   const in1hFrom = addHours(now, 58)
   await sendTimeReminders(in1hFrom, in1h, '1h', '⏰ Votre course est dans 1 heure', results)
 
@@ -40,8 +56,8 @@ export async function GET(req: NextRequest) {
   const in15From = addHours(now, 0.20)
   await sendTimeReminders(in15From, in15, '15min', '🚗 Votre chauffeur arrive bientôt', results)
 
-  // ── J-1 email (runs once a day around midnight) ───────────
-  const hour = now.getHours()
+  // ── J-1 email (runs once a day à 8h Paris) ───────────────
+  const hour = getParisHour(now)
   if (hour === 8) {
     await sendDayBeforeEmails(results)
     await sendAdminDailyRecap(results)
@@ -78,7 +94,7 @@ async function sendTimeReminders(
       .maybeSingle()
 
     const prefKey = label === '1h' ? 'push_reminder_1h' : 'push_reminder_15min'
-    if (prefs && (prefs as any)[prefKey] === false) continue
+    if (prefs && (prefs as NotifPrefs)[prefKey] === false) continue
 
     await sendMobilePush(bk.client_id, {
       title: pushTitle,
@@ -90,9 +106,9 @@ async function sendTimeReminders(
 }
 
 async function sendDayBeforeEmails(results: string[]) {
-  const tomorrow = addDays(new Date(), 1)
-  const from = startOfDay(tomorrow)
-  const to = endOfDay(tomorrow)
+  const now = new Date()
+  const from = new Date(getParisDayStartISO(now, 1))
+  const to = new Date(getParisDayEndISO(now, 1))
 
   const { data: bookings } = await supabaseAdmin
     .from('bookings')
@@ -107,11 +123,11 @@ async function sendDayBeforeEmails(results: string[]) {
 
   if (!bookings?.length) return
 
-  for (const bk of bookings) {
-    const clientEmail = (bk as any).profiles?.email ?? bk.guest_email
-    const clientName = (bk as any).profiles?.full_name ?? 'Client'
-    const driverName = (bk as any).drivers
-      ? `${(bk as any).drivers.first_name} ${(bk as any).drivers.last_name}`
+  for (const bk of bookings as BookingForReminder[]) {
+    const clientEmail = bk.profiles?.email ?? bk.guest_email
+    const clientName = bk.profiles?.full_name ?? 'Client'
+    const driverName = bk.drivers
+      ? `${bk.drivers.first_name} ${bk.drivers.last_name}`
       : undefined
 
     if (!clientEmail) continue
@@ -131,7 +147,7 @@ async function sendDayBeforeEmails(results: string[]) {
         clientName,
         pickup: bk.pickup_address,
         dropoff: bk.dropoff_address,
-        scheduledAt: format(new Date(bk.scheduled_at), "EEEE d MMMM 'à' HH'h'mm", { locale: fr }),
+        scheduledAt: fmtDateTimeLong(bk.scheduled_at),
         driverName,
       }),
     )
@@ -143,9 +159,9 @@ async function sendAdminDailyRecap(results: string[]) {
   const adminEmail = process.env.ADMIN_EMAIL
   if (!adminEmail) return
 
-  const tomorrow = addDays(new Date(), 1)
-  const from = startOfDay(tomorrow)
-  const to = endOfDay(tomorrow)
+  const now = new Date()
+  const from = new Date(getParisDayStartISO(now, 1))
+  const to = new Date(getParisDayEndISO(now, 1))
 
   const { data: bookings } = await supabaseAdmin
     .from('bookings')
@@ -161,19 +177,19 @@ async function sendAdminDailyRecap(results: string[]) {
 
   if (!bookings?.length) return
 
-  const dateStr = format(tomorrow, 'd MMMM yyyy', { locale: fr })
+  const dateStr = from.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'long', year: 'numeric' })
   await sendEmail(
     adminEmail,
     `O Taxi — ${bookings.length} course(s) demain ${dateStr}`,
     adminDailyRecapHtml({
       date: dateStr,
-      bookings: bookings.map(bk => ({
-        time: format(new Date(bk.scheduled_at), 'HH:mm'),
-        client: (bk as any).profiles?.full_name ?? 'Invité',
+      bookings: (bookings as BookingForReminder[]).map(bk => ({
+        time: fmtTime(bk.scheduled_at),
+        client: bk.profiles?.full_name ?? 'Invité',
         pickup: bk.pickup_address,
         dropoff: bk.dropoff_address,
-        driver: (bk as any).drivers
-          ? `${(bk as any).drivers.first_name} ${(bk as any).drivers.last_name}`
+        driver: bk.drivers
+          ? `${bk.drivers.first_name} ${bk.drivers.last_name}`
           : undefined,
       })),
     }),
@@ -198,7 +214,7 @@ async function checkUnassignedBookings(now: Date, results: string[]) {
     await createAdminNotification({
       type: 'unassigned_urgent',
       title: '⚠️ Course non assignée (J-2)',
-      body: `${bk.pickup_address} → ${bk.dropoff_address} — ${format(new Date(bk.scheduled_at), "d MMM 'à' HH'h'mm", { locale: fr })}`,
+      body: `${bk.pickup_address} → ${bk.dropoff_address} — ${fmtDateShort(bk.scheduled_at)}`,
       data: { bookingId: bk.id },
     })
     results.push(`Unassigned J-2d alert for ${bk.id}`)
@@ -220,7 +236,7 @@ async function checkUnassignedBookings(now: Date, results: string[]) {
     await createAdminNotification({
       type: 'unassigned_urgent',
       title: '🚨 URGENT — Course non assignée (2h)',
-      body: `${bk.pickup_address} → ${bk.dropoff_address} — ${format(new Date(bk.scheduled_at), "HH'h'mm", { locale: fr })}`,
+      body: `${bk.pickup_address} → ${bk.dropoff_address} — ${fmtTime(bk.scheduled_at)}`,
       data: { bookingId: bk.id },
     })
     results.push(`Unassigned J-2h alert for ${bk.id}`)

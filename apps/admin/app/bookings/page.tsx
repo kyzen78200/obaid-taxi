@@ -236,6 +236,7 @@ export default async function BookingsPage({
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="font-medium text-gray-900">
                             {new Date(booking.scheduled_at).toLocaleString('fr-FR', {
+                              timeZone: 'Europe/Paris',
                               day: '2-digit', month: '2-digit', year: '2-digit',
                               hour: '2-digit', minute: '2-digit',
                             })}

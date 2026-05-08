@@ -33,9 +33,10 @@ export async function POST(req: NextRequest) {
     const ip = getIp(req)
     const rl = rateLimit(`booking-notify:${ip}`, 20, 60 * 1000)
     if (!rl.ok) {
+      const retryAfterSec = Math.ceil((rl.retryAfterMs ?? 60000) / 1000)
       return NextResponse.json(
         { error: 'Trop de requêtes. Réessayez dans un moment.' },
-        { status: 429, headers: CORS_HEADERS },
+        { status: 429, headers: { ...CORS_HEADERS, 'Retry-After': String(retryAfterSec) } },
       )
     }
 

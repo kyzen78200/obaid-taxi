@@ -13,6 +13,8 @@
     "@obaid-taxi/shared": "*",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.4",
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^3.2.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "@types/web-push": "^3.6.4",

@@ -14,9 +14,10 @@ export async function POST(req: NextRequest) {
     const ip = getIp(req)
     const rl = rateLimit(`delete-account:${ip}`, 3, 60 * 60 * 1000)
     if (!rl.ok) {
+      const retryAfterSec = Math.ceil((rl.retryAfterMs ?? 3600000) / 1000)
       return NextResponse.json(
         { error: 'Trop de tentatives. Réessayez dans une heure.' },
-        { status: 429 },
+        { status: 429, headers: { 'Retry-After': String(retryAfterSec) } },
       )
     }
 

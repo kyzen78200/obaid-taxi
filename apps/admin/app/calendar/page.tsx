@@ -215,7 +215,7 @@ export default function CalendarPage() {
                     {dayBookings.map((booking) => {
                       const time = new Date(booking.scheduled_at).toLocaleTimeString(
                         'fr-FR',
-                        { hour: '2-digit', minute: '2-digit' }
+                        { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }
                       )
                       const colorClass =
                         statusColors[booking.status] ?? 'bg-gray-100 border-gray-300 text-gray-800'

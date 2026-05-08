@@ -161,7 +161,8 @@ export default async function ClientDetailPage({ params }: { params: { id: strin
                     {bookings.map((booking, i) => (
                       <tr key={booking.id} className={`hover:bg-blue-50 transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                         <td className="px-6 py-3 whitespace-nowrap text-gray-700">
-                          {new Date(booking.scheduled_at).toLocaleDateString('fr-FR', {
+                          {new Date(booking.scheduled_at).toLocaleString('fr-FR', {
+                            timeZone: 'Europe/Paris',
                             day: '2-digit', month: '2-digit', year: '2-digit',
                             hour: '2-digit', minute: '2-digit',
                           })}

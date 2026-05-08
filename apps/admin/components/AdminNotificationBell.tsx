@@ -33,23 +33,30 @@ export default function AdminNotificationBell() {
   const unreadCount = notifs.filter(n => !n.read).length
 
   useEffect(() => {
+    // Stocker le channel dans une variable locale pour que la cleanup puisse le désabonner.
+    // init() est async — on ne peut pas retourner sa valeur directement dans useEffect
+    // (ça retournerait une Promise, pas une cleanup function).
+    let channel: ReturnType<typeof supabase.channel> | null = null
+
     async function init() {
       loadNotifs()
-
       // Nommer le channel avec l'userId pour éviter les channels orphelins
       // lors des re-montages React Strict Mode
       const { data: { user } } = await supabase.auth.getUser()
       const uid = user?.id ?? 'admin'
-      const channel = supabase.channel(`admin-notifs-${uid}`)
+      channel = supabase.channel(`admin-notifs-${uid}`)
       channel
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'admin_notifications' }, payload => {
           setNotifs(prev => [payload.new as AdminNotif, ...prev].slice(0, 20))
         })
         .subscribe()
-
-      return () => { supabase.removeChannel(channel) }
     }
+
     init()
+
+    return () => {
+      if (channel) supabase.removeChannel(channel)
+    }
   }, [])
 
   useEffect(() => {
